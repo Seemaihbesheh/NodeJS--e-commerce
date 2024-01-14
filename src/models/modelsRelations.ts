@@ -1,0 +1,68 @@
+import { userModel } from "./user"
+import { sessionModel } from "./session"
+import { cartModel } from "./cart"
+import { wishListModel } from "./wishList"
+import { ratingModel } from "./rating"
+import { orderModel } from "./order"
+import { addressModel } from "./address"
+import { orderItemModel } from "./orderItem"
+import { productModel } from "./product"
+import { imageModel } from "./images"
+
+userModel.hasMany(sessionModel, { foreignKey: 'userID' })
+sessionModel.belongsTo(userModel, { foreignKey: 'userID' })
+
+userModel.hasMany(cartModel, { foreignKey: 'userID' })
+cartModel.belongsTo(userModel, { foreignKey: 'userID' })
+
+userModel.hasMany(wishListModel, { foreignKey: 'userID' })
+wishListModel.belongsTo(userModel, { foreignKey: 'userID' })
+
+userModel.hasMany(ratingModel, { foreignKey: 'userID' })
+ratingModel.belongsTo(userModel, { foreignKey: 'userID' })
+
+userModel.hasMany(addressModel, { foreignKey: 'userID' })
+addressModel.belongsTo(userModel, { foreignKey: 'userID' })
+
+
+userModel.hasMany(orderModel, { foreignKey: 'userID' })
+orderModel.belongsTo(userModel, { foreignKey: 'userID' })
+
+orderModel.hasMany(orderItemModel, { foreignKey: 'orderID' })
+orderItemModel.belongsTo(orderModel, { foreignKey: 'orderID' })
+
+productModel.hasMany(imageModel, { foreignKey: 'productID' })
+imageModel.belongsTo(productModel, { foreignKey: 'productID' })
+
+cartModel.hasMany(productModel, { foreignKey: 'productID' })
+productModel.belongsTo(cartModel, { foreignKey: 'productID' })
+
+wishListModel.hasMany(productModel, { foreignKey: 'productID' })
+productModel.belongsTo(wishListModel, { foreignKey: 'productID' })
+
+export {
+    userModel, 
+    sessionModel, 
+    cartModel, 
+    wishListModel, 
+    ratingModel, 
+    addressModel, 
+    orderModel, 
+    orderItemModel, 
+    productModel, 
+    imageModel
+}
+// user has many sessions
+// user has many carts
+// user has many wishlists
+// user has many ratings
+// user has many orders
+// user has many addresses
+
+// order has many items
+
+// product has many images
+
+// wishlist has many products
+
+// cart has many products

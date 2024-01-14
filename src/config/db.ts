@@ -19,7 +19,7 @@ async function syncModels() {
   try {
     await sequelize.authenticate()
     console.log('Connection has been established successfully.')
-
+    // {force: true}
     await sequelize.sync()
 
   } catch (error) {
@@ -27,4 +27,4 @@ async function syncModels() {
   }
 }
 
-export { sequelize, syncModels };
+export { sequelize, syncModels }
