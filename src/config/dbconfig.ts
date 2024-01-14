@@ -4,7 +4,7 @@ const dbConfig= {
     HOST: 'localhost',
     USER: 'root',
     PASSWORD: '',
-    DB: 'coralDatabase',
+    DB: 'coraldatabase',
     dialect: 'mysql' as Dialect,
     pool: {
         max: 10,
