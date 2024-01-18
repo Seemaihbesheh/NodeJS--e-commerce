@@ -5,7 +5,8 @@ interface cartInstance extends Model {
   cartID: number,
   userID: number,
   productID: number,
-  productQuantity: number
+  productQuantity: number,
+  isOrdered: boolean
 }
 
 const cartModel = sequelize.define<cartInstance>('cart', {

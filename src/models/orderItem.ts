@@ -38,6 +38,10 @@ const orderItemModel = sequelize.define<orderItemInstance>('orderItems', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  productDiscount: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
 }, {
   timestamps: false,
   tableName: 'orderitems'
