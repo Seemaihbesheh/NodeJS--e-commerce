@@ -11,6 +11,10 @@ const brandModel = sequelize.define('brand', {
       type: DataTypes.STRING,
       allowNull: false,
     },
-  })
+  },{
+    timestamps: false,
+    tableName: 'brand'
+  }
+  )
   
  export {brandModel}

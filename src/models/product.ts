@@ -8,10 +8,10 @@ interface productInstance extends Model {
     description: string,
     price: number,
     quantity: number,
-    category: string,
+    category: number,
     discount: number,
     arrivalDate: string,
-    brand: string
+    brand: number
 }
 const productModel = sequelize.define<productInstance>('products', {
     productID: {
@@ -37,8 +37,8 @@ const productModel = sequelize.define<productInstance>('products', {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    category: {
-      type: DataTypes.STRING,
+    categoryID: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     discount: {
@@ -48,10 +48,11 @@ const productModel = sequelize.define<productInstance>('products', {
     arrivalDate: {
       type: DataTypes.DATE
     },
-    brand: {
-      type: DataTypes.STRING,
+    brandID: {
+      type: DataTypes.INTEGER,
       allowNull: false,
-    },
+    }
+
   }, {
     timestamps: false,
     tableName: 'products'

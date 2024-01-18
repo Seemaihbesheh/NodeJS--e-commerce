@@ -23,16 +23,21 @@ function generateSessionID(): string {
 
 router.post('/signup', async (req: Request, res: Response) => {
     console.log(req.body)
+    const { email, password, firstName , lastName} = req.body
+    if (!email || !password || !firstName || !lastName) {
+        return res.status(400).json('All fields are required')
+    }
     try {
         const foundUser = await findUser(req.body.email)
         if (foundUser) {
             throw new Error('Email already exists');
         }
+        
         const userData: userInstance = req.body
-        await userModel.create({ email: userData.email, password: userData.password })
+        const newUser = await userModel.create({ email: userData.email, password: userData.password, firstName: firstName, lastName: lastName })
 
         const sessionID: string = generateSessionID()
-        let sessionData = { "sessionID": sessionID, "userID": foundUser.userID }
+        let sessionData = { "sessionID": sessionID, "userID": newUser.userID }
         console.log(await sessionModel.create(sessionData))
         res.status(200).json({ "sessionID": sessionID })
     }
@@ -43,6 +48,10 @@ router.post('/signup', async (req: Request, res: Response) => {
 
 router.post('/login', async (req: Request, res: Response) => {
     try {
+        const { email, password } = req.body
+        if (!email || !password ) {
+            return res.status(400).json('Please enter all fields');
+        }
         const foundUser = await findUser(req.body.email)
 
         if (!foundUser) {
@@ -71,7 +80,7 @@ router.post('/changePassword', sessionMiddleware, async (req: CustomRequest, res
         console.log(req.body)
         const { email, password, newPassword } = req.body
         if (!email || !password || !newPassword) {
-            return res.status(400).json('Missing required parameters');
+            return res.status(400).json('Please enter all fields');
         }
         const foundUser = await findUser(email)
         if (!foundUser) {

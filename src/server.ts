@@ -3,17 +3,15 @@ import bodyParser from 'body-parser'
 import { syncModels } from './config/db'
 import userRoutes from './controllers/authenticationController'
 import productRoutes from './routes/productRoutes'
-
+import cartRoutes from './routes/cartRoutes'
 const app = express()
 
-app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: false }))
 
 app.use('/', userRoutes)
 app.use('/products', productRoutes)
-
-
-
+app.use('/cart', cartRoutes )
 
 syncModels()
   .then(() => {

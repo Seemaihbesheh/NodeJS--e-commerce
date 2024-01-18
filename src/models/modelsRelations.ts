@@ -8,6 +8,8 @@ import { addressModel } from "./address"
 import { orderItemModel } from "./orderItem"
 import { productModel } from "./product"
 import { imageModel } from "./images"
+import { brandModel } from "./brand"
+import { categoryModel } from "./category"
 
 userModel.hasMany(sessionModel, { foreignKey: 'userID' })
 sessionModel.belongsTo(userModel, { foreignKey: 'userID' })
@@ -34,11 +36,20 @@ orderItemModel.belongsTo(orderModel, { foreignKey: 'orderID' })
 productModel.hasMany(imageModel, { foreignKey: 'productID' })
 imageModel.belongsTo(productModel, { foreignKey: 'productID' })
 
+productModel.hasMany(ratingModel,{ foreignKey: 'productID' })
+ratingModel.belongsTo(productModel,{ foreignKey: 'productID' })
+
 cartModel.hasMany(productModel, { foreignKey: 'productID' })
 productModel.belongsTo(cartModel, { foreignKey: 'productID' })
 
 wishListModel.hasMany(productModel, { foreignKey: 'productID' })
 productModel.belongsTo(wishListModel, { foreignKey: 'productID' })
+
+brandModel.hasMany(productModel, { foreignKey: 'brandID' })
+productModel.belongsTo(brandModel, { foreignKey: 'brandID' })
+
+categoryModel.hasMany(productModel,{foreignKey: 'categoryID'})
+productModel.belongsTo(categoryModel, { foreignKey: 'categoryID' })
 
 export {
     userModel, 
@@ -50,7 +61,8 @@ export {
     orderModel, 
     orderItemModel, 
     productModel, 
-    imageModel
+    imageModel,
+    categoryModel
 }
 // user has many sessions
 // user has many carts
@@ -62,7 +74,11 @@ export {
 // order has many items
 
 // product has many images
+// product has many ratings
 
 // wishlist has many products
 
 // cart has many products
+
+// category has many products
+// brand has many products
