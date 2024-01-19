@@ -4,6 +4,8 @@ import { syncModels } from './config/db'
 import userRoutes from './controllers/authenticationController'
 import productRoutes from './routes/productRoutes'
 import cartRoutes from './routes/cartRoutes'
+import wishListRoutes from './routes/cartRoutes'
+
 const app = express()
 
 app.use(bodyParser.json())
@@ -12,6 +14,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use('/', userRoutes)
 app.use('/products', productRoutes)
 app.use('/cart', cartRoutes )
+app.use('/wishList', wishListRoutes)
 
 syncModels()
   .then(() => {
