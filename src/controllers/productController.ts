@@ -65,7 +65,10 @@ async function isAuthorized(req: Request): Promise<boolean | number> {
 async function getProductsAndIsAdded(req: Request, products: any[]): Promise<any[]> {
     const userID = await isAuthorized(req)
     if (!userID) {
-        return products
+        return products.map((product) => ({
+            ...product.toJSON(),
+            isAddedToWishList: 0,
+        }))
     }
 
     const isAddedPromises = products.map(product => isAdedToWishlist(userID, product.productID))
