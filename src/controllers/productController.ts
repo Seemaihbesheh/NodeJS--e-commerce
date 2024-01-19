@@ -16,27 +16,29 @@ export const getTrendyProducts = async function (req: Request, res: Response): P
                 "subTitle",
                 "price",
                 "discount"
-                , [sequelize.literal('(SELECT AVG(rating) FROM ratings WHERE ratings.productID = products.productID)'), 'avgRating'],
-
+                , [sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col("ratings.rating")), 0), 'avgRating'],
+                [sequelize.fn('COUNT', sequelize.col("ratings.rating")), 'ratingCount'],
+                [sequelize.literal('(SELECT imgPath FROM images WHERE images.productID = products.productID AND images.position = 1 LIMIT 1)'), 'imgPath'],
             ],
             include: [
                 {
                     model: imageModel,
-                    attributes: ['imgPath'],
+                    attributes: [],
                     where: sequelize.literal('position = 1'),
                     required: false
                 },
                 {
                     model: ratingModel,
-                    attributes: [
-                        [sequelize.literal('(SELECT count(rating) FROM ratings WHERE ratings.productID = products.productID)'), 'ratingsCount'],
-                    ]
+                    attributes: [],
+                     required: false
                 }
             ],
+            group: ['productID'],
             having: sequelize.literal('avgRating >= 4.5'),
             order: [[sequelize.literal('avgRating'), 'DESC']],
             limit: pageSize,
             offset: (page - 1) * pageSize,
+            subQuery: false
 
         })
         const count = trendyProducts.length
@@ -71,6 +73,6 @@ async function getProductsAndIsAdded(req: Request, products: any[]): Promise<any
 
     return products.map((product, index) => ({
         ...product.toJSON(),
-        isAdded: isAddedResults[index],
+        isAddedToWishList: isAddedResults[index],
     }))
 }
