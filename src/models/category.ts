@@ -4,7 +4,7 @@ interface categoryInstance extends Model {
   categoryID: number,
   name: string,
 }
-const categoryModel = sequelize.define('category', {
+const categoryModel = sequelize.define<categoryInstance>('category', {
   categoryID: {
     type: DataTypes.INTEGER,
     primaryKey: true,
