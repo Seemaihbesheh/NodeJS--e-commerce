@@ -1,14 +1,12 @@
 import { wishListModel } from "../models/modelsRelations"
 
-export const isAdedToWishlist = async function isAdedToWishlist(userID: any, productID: number): Promise<boolean> {
+export const isAdedToWishlist = async function isAdedToWishlist(userID: any, productID: number): Promise<number> {
     const isAdded = await wishListModel.findOne({
         where: {
             userID: userID,
             productID: productID
         }
     })
-    if (isAdded) {
-        console.log ("clabla")
-        return true}
-    else return false
+    if (isAdded) return 1
+    else return 0
 } 
