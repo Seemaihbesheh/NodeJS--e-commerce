@@ -11,8 +11,8 @@ const sessionMiddleware = async (req: CustomRequest, res: Response, next: NextFu
       return res.status(400).json({ error: 'Session ID not provided in headers' })
     }
     const foundSession = await sessionModel.findOne({ where: { sessionID: headersData.authorization } })
-    const foundUser = await userModel.findOne({where: {userID : foundSession.userID}})
     if (foundSession) {
+      const foundUser = await userModel.findOne({where: {userID : foundSession.userID}})
       req.session = foundSession
       req.user = foundUser
       next()
