@@ -47,9 +47,9 @@ export const getTrendyProducts = async function (req: Request, res: Response): P
         const count = trendyProducts.length
         productsWithIsAdded = await getProductsAndIsAdded(req, trendyProducts)
 
-        return res.status(200).json({ "count": count, "products": productsWithIsAdded })
+        return res.status(200).json({ "totalCount": count, "products": productsWithIsAdded })
     } catch (err) {
-        return res.status(500).json({ error: 'Failed to get products', details: err.message })
+         res.status(500).json('Internal Server Error')
     }
 }
 
@@ -161,7 +161,7 @@ export const getProductsByCategory = async function (req:Request , res:Response)
 
     }catch(error){
         console.log(error.message)
-        res.status(500).json({message : "server error"});
+         res.status(500).json('Internal Server Error')
     }  
 }
 
@@ -239,7 +239,7 @@ export const getProductsByBrand = async function (req:Request , res:Response): P
 
     }catch(error){
         console.log(error.message);
-        res.status(500).json({message : "server error"});
+         res.status(500).json('Internal Server Error')
     }
 }
 
@@ -314,7 +314,7 @@ export const getNewArrivalProducts = async function (req:Request , res:Response)
 
     }catch(error){
         console.log(error.message)
-        res.status(500).json({message : "server error"});
+        res.status(500).json('Internal Server Error')
     }  
 }
 
@@ -385,7 +385,7 @@ export const getLimitedProducts = async function (req:Request , res:Response): P
         })
 
     }catch(error){
-        res.status(500).json({message : "server error"})
+        res.status(500).json('Internal Server Error')
     }
 }
 
@@ -458,7 +458,7 @@ export const getProductsByDiscoutOrMore = async function (req:Request , res:Resp
         })
 
     }catch(error){
-        res.status(500).json({message : "server error"})
+         res.status(500).json('Internal Server Error')
     }
 }
 
