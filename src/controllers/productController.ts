@@ -469,7 +469,7 @@ export const handPicked = async (req: Request, res: Response): Promise<any> => {
       let productsWithIsAdded = []
       const categoryName = req.query.category as string | undefined;
       const page = Number(req.query.page) || 1;
-      const pageSize = Number(req.query.pageSize) || 9;
+      const pageSize = Number(req.query.pageSize) || 20;
       const category = await categoryModel.findOne({
         attributes: ['categoryID'],
         where: {
@@ -645,7 +645,7 @@ export const handPicked = async (req: Request, res: Response): Promise<any> => {
       const productID = req.params.productID;
   
       const page = Number(req.query.page) || 1;
-      const pageSize = Number(req.query.pageSize) || 9;
+      const pageSize = Number(req.query.pageSize) || 5;
   
       const count = await ratingModel.count({
         where: {
