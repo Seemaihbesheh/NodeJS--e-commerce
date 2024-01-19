@@ -1,6 +1,9 @@
 import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
-
+interface categoryInstance extends Model {
+  categoryID: number,
+  name: string,
+}
 const categoryModel = sequelize.define('category', {
   categoryID: {
     type: DataTypes.INTEGER,
@@ -16,4 +19,4 @@ const categoryModel = sequelize.define('category', {
   tableName: 'category'
 })
 
-export {categoryModel}
+export {categoryModel, categoryInstance}
