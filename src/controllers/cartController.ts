@@ -120,6 +120,80 @@ export const moveToWishlist = async function moveToWishlist(req: CustomRequest, 
     }
 
 }
+
+export const deleteProductFromCart = async function (req:CustomRequest , res:Response): Promise<any>{
+    try{
+        const productID = req.params.productID;
+        const product = await productModel.findByPk(productID);
+        if(!product){
+            return res.status(404).json("product does not exist");
+            
+        }
+        const userID = req.user.userID;
+
+        await cartModel.destroy({
+            where: {
+                userID: userID,
+                productID: productID,
+                isOrdered: 0
+            }
+        });
+
+        return res.json("deleted successfully");
+
+    }catch(error){
+        return res.status(500).json("Internal Server Error");
+    }
+}
+
+
+export const addToCart = async function (req:CustomRequest , res:Response): Promise<any>{
+    try{
+        if(!req.body.productID || typeof(req.body.productID) != 'number' || !req.body.productQuantity || typeof(req.body.productQuantity) !="number" ){
+            res.status(400).json("Invalid field");
+            return;
+        }
+        const productID = req.body.productID;
+        const userID = req.user.userID;
+
+        const product = await productModel.findByPk(productID);
+        if(!product){
+            return res.status(404).json("product does not exist");
+        }
+
+        if(product.quantity < req.body.quantity){
+            return res.status(404).json("no enough quantity");
+        }
+
+        
+        const productExist = await cartModel.findOne({
+            where:{
+                productID : productID,
+                userID : userID
+            }
+        }) 
+
+        // if product exist I will update the quantity 
+        if(productExist){
+            updateProduct(productExist.productID , userID, productExist.productQuantity + req.body.productQuantity);
+        }else{
+            const newCart = {
+                userID : userID,
+                productID : productID,
+                productQuantity : req.body.productQuantity,
+                isOrdered : 0
+            }
+            const result = await cartModel.create(newCart);
+        }
+        return res.status(201).json("Successfully added to cart");
+
+    }catch(error){
+        console.log(error.message)
+        res.status(500).json("Internal Server Error");
+    }
+    
+}
+
 async function updateProduct(cartProductID: number, userID: number, newQuantity: any): Promise<any> {
     try {
         return await cartModel.update({ productQuantity: newQuantity },
