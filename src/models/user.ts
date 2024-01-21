@@ -8,7 +8,9 @@ interface userInstance extends Model {
   firstName: string,
   lastName: string,
   email: string,
-  password: string
+  password: string,
+  mobile: string,
+  image: string
 }
 const userModel = sequelize.define<userInstance>('users', {
   userID: {
@@ -32,6 +34,12 @@ const userModel = sequelize.define<userInstance>('users', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  mobile: {
+    type: DataTypes.STRING,
+  },
+  image: {
+    type: DataTypes.STRING
+  }
 }, {
   timestamps: false,
   tableName: 'users'
