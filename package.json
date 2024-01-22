@@ -4,10 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": " tsx watch src/server.ts",
-    "mkOutput": "tsc && if not exist JSbuild then mkdir JSbuild",
-    "copyPackage": "copy package.json \"./JSbuild\"",
-    "build": "npm run mkOutput && npm run copyPackage",
+    "start": " tsx watch src/server",
+    "build": "tsc && mkdir JSbuild",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

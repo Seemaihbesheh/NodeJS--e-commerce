@@ -7,9 +7,11 @@
         "moduleResolution": "Node",
         "sourceMap": false,
         "allowSyntheticDefaultImports": true,
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+        "resolveJsonModule": true
     },
     "include": [
-      "./**/*"
+      "./**/*",
+      "./package.json"
     ]
 }
