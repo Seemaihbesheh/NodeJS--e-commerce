@@ -3,8 +3,8 @@ import { productModel, imageModel, ratingModel, sessionModel, userModel, categor
 import { CustomRequest } from "../middlewares/sessionMiddleware"
 import { Request, Response } from 'express'
 import { isAdedToWishlist } from '../utils/wishlistUtils'
-import { Op } from 'sequelize';
-import { brandModel } from "../models/brand";
+import { Op } from 'sequelize'
+import { brandModel } from "../models/brand"
 
 
 export const getTrendyProducts = async function (req: Request, res: Response): Promise<any> {
