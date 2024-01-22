@@ -1,14 +1,14 @@
-import { Dialect } from "sequelize"
-
-const dbConfig= {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const dbConfig = {
     HOST: 'localhost',
     USER: 'root',
     PASSWORD: 'root.Password66',
     DB: 'coraldatabase',
-    dialect: 'mysql' as Dialect,
+    dialect: 'mysql',
     pool: {
         max: 10,
         min: 1
     }
-}
-export default dbConfig
+};
+exports.default = dbConfig;
