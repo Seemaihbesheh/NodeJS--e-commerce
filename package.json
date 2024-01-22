@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": " tsx watch src/server.ts",
-    "mkOutput": "tsc && if not exist JSbuild mkdir JSbuild",
+    "mkOutput": "tsc && mkdir -p JSbuild",
     "copyPackage": "xcopy package.json \"./JSbuild\"",
     "build": "npm run mkOutput && npm run copyPackage",
     "test": "echo \"Error: no test specified\" && exit 1"
