@@ -33,7 +33,7 @@ jobs:
       - run:
           name: restart server
           command: >
-            ssh -o "StrictHostKeyChecking=no" $SSH_USER@$SSH_HOST "cd ~/coral-final/JSbuild && pm2 delete coral-final || : && pm2 start index.js --name 'coral-final'"
+            ssh -o "StrictHostKeyChecking=no" $SSH_USER@$SSH_HOST "cd ~/coral-final/JSbuild && pm2 delete coral-final || : && pm2 start server.js --name 'coral-final'"
 workflows:
   build-and-deploy:
     when:
