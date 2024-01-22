@@ -1,9 +1,13 @@
 {
     "compilerOptions": {
         "module": "CommonJS",
-        "target": "ES5",
+        "target": "ESNext",
         "outDir": "JSbuild",
         "esModuleInterop": true,
+        "moduleResolution": "Node",
+        "sourceMap": false,
+        "allowSyntheticDefaultImports": true,
+        "experimentalDecorators": true
     },
     "include": [
       "./**/*"

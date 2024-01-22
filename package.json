@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": " tsx watch src/server.ts",
-    "build": "tsc && if not exist JSbuild mkdir JSbuild",
+    "build": "tsc && if not exist JSbuild mkdir JSbuild && cp package.json ./JSbuild",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

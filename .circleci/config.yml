@@ -1,0 +1,45 @@
+# This config was automatically generated from your source code
+# Stacks detected: deps:node:.
+version: 2.1
+orbs:
+  node: circleci/node@5
+jobs:
+  build:
+    # Build node project
+    executor: node/default
+    steps:
+      - checkout
+      - node/install-packages:
+          cache-path: ~/project/node_modules
+          override-ci-command: npm install
+      - run:
+          command: npm run build
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - .
+  deploy:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - run:
+          name: copy files
+          command: scp -o "StrictHostKeyChecking=no" -r ~/project/JSbuild $SSH_USER@$SSH_HOST:~/coral-final/
+      - run:
+          name: install dependencies
+          command: ssh -o "StrictHostKeyChecking=no" $SSH_USER@$SSH_HOST "cd ~/coral-final/JSbuild && npm install --only=production"
+      - run:
+          name: restart server
+          command: >
+            ssh -o "StrictHostKeyChecking=no" $SSH_USER@$SSH_HOST "cd ~/coral-final/build && pm2 delete coral-final || : && pm2 start index.js --name 'coral-final'"
+workflows:
+  build-and-deploy:
+    when:
+      equal: [ master, << pipeline.git.branch >> ]
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
