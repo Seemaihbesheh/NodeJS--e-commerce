@@ -1,6 +1,6 @@
 import { Dialect } from "sequelize"
 
-const dbConfig= {
+const dbConfig = {
     HOST: 'localhost',
     USER: 'root',
     PASSWORD: 'root.Password66',

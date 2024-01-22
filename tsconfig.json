@@ -1,17 +1,14 @@
 {
-    "compilerOptions": {
-        "module": "CommonJS",
-        "target": "ESNext",
-        "outDir": "JSbuild",
-        "esModuleInterop": true,
-        "moduleResolution": "Node",
-        "sourceMap": false,
-        "allowSyntheticDefaultImports": true,
-        "experimentalDecorators": true,
-        "resolveJsonModule": true
-    },
-    "include": [
-      "./**/*",
-      "./package.json"
-    ]
+  "compilerOptions": {
+    "rootDir": "./src",
+    "module": "CommonJS",
+    "target": "ESNext",
+    "outDir": "JSbuild",
+    "esModuleInterop": true,
+    "moduleResolution": "Node",
+    "sourceMap": false,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "resolveJsonModule": true
+  },
 }

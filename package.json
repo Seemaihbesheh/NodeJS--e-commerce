@@ -2,10 +2,10 @@
   "name": "backend-final-3",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/server.ts",
   "scripts": {
-    "start": " tsx watch src/server",
-    "build": "tsc && IF exist JSbuild echo \"JSbuild exists\" ELSE mkdir JSbuild && echo \"JSbuild created\"",
+    "start": "tsx watch app.ts",
+    "build": "rm -rf JSbuild/ && tsc && cp package.json ./JSbuild/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
