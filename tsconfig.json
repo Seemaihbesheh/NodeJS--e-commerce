@@ -3,7 +3,7 @@
     "rootDir": "./src",
     "module": "CommonJS",
     "target": "ESNext",
-    "outDir": "JSbuild",
+    "outDir": "./JSbuild",
     "esModuleInterop": true,
     "moduleResolution": "Node",
     "sourceMap": false,

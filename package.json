@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/server.ts",
   "scripts": {
-    "start": "tsx watch app.ts",
+    "start": "tsx watch src/server.ts",
     "build": "rm -rf JSbuild/ && tsc && cp package.json ./JSbuild/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

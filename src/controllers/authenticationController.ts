@@ -4,7 +4,7 @@ import express, { Request, Response } from 'express'
 const router = express.Router()
 import bcrypt from 'bcrypt'
 import { v4 as uuidv4 } from 'uuid'
-import { sessionMiddleware, CustomRequest } from '../../src/middlewares/sessionMiddleware'
+import { sessionMiddleware, CustomRequest } from '../middlewares/sessionMiddleware'
 
 export async function findUser(email: string): Promise<userInstance> {
     try {
