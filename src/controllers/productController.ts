@@ -89,8 +89,11 @@ export const getProductsByCategory = async function (req:Request , res:Response)
         const pageSize = Number(req.query.pageSize) || 20;
         const categoryName = req.params.category;
         // const userID = req.user?.userID || null;
-
-        let userID = null;
+        
+        let userID = await isAuthorized(req);
+        if (!userID) {
+            userID = null;
+        }
         const category = await categoryModel.findOne({
             where : {
                 name : categoryName
@@ -118,7 +121,7 @@ export const getProductsByCategory = async function (req:Request , res:Response)
                 [sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col("ratings.rating")), 0), 'avgRating'],
                 [sequelize.fn('COUNT', sequelize.col("ratings.rating")), 'ratingCount'],
                 [sequelize.literal('(SELECT imgPath FROM images WHERE images.productID = products.productID AND images.position = 1 LIMIT 1)'), 'imgPath'], // to make the response contains the imagePath as an attribute insted of having an attribute of type array containing the imagePath   
-                [sequelize.literal(`(SELECT COUNT(*) FROM wishlist WHERE wishlist.productID = products.productID AND wishlist.userID = ${userID} )`), 'isAddedToWishList'],     
+                [sequelize.literal(`(SELECT COUNT(*) FROM wishList WHERE wishList.productID = products.productID AND wishList.userID = ${userID} )`), 'isAddedToWishList'],     
             ],
             where :{
                 categoryID : category.dataValues.categoryID
@@ -198,7 +201,7 @@ export const getProductsByBrand = async function (req:Request , res:Response): P
                 [sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col("ratings.rating")), 0), 'avgRating'],
                 [sequelize.fn('COUNT', sequelize.col("ratings.rating")), 'ratingCount'], 
                 [sequelize.literal('(SELECT imgPath FROM images WHERE images.productID = products.productID AND images.position = 1 LIMIT 1)'), 'imgPath'], // to make the response contains the imagePath as an attribute insted of having an attribute of type array containing the imagePath   
-                [sequelize.literal(`(SELECT COUNT(*) FROM wishlist WHERE wishlist.productID = products.productID AND wishlist.userID = ${userID} )`), 'isAddedToWishList'],         
+                [sequelize.literal(`(SELECT COUNT(*) FROM wishList WHERE wishList.productID = products.productID AND wishList.userID = ${userID} )`), 'isAddedToWishList'],         
             ],
             where :{
                 brandID : brand.dataValues.brandID
@@ -271,7 +274,7 @@ export const getNewArrivalProducts = async function (req:Request , res:Response)
                 [sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col("ratings.rating")), 0), 'avgRating'],
                 [sequelize.fn('COUNT', sequelize.col("ratings.rating")), 'ratingCount'], 
                 [sequelize.literal('(SELECT imgPath FROM images WHERE images.productID = products.productID AND images.position = 1 LIMIT 1)'), 'imgPath'], // to make the response contains the imagePath as an attribute insted of having an attribute of type array containing the imagePath   
-                [sequelize.literal(`(SELECT COUNT(*) FROM wishlist WHERE wishlist.productID = products.productID AND wishlist.userID = ${userID} )`), 'isAddedToWishList'],         
+                [sequelize.literal(`(SELECT COUNT(*) FROM wishList WHERE wishList.productID = products.productID AND wishList.userID = ${userID} )`), 'isAddedToWishList'],         
             ],
             where :{
                 arrivalDate: {
@@ -343,7 +346,7 @@ export const getLimitedProducts = async function (req:Request , res:Response): P
                 [sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col("ratings.rating")), 0), 'avgRating'],
                 [sequelize.fn('COUNT', sequelize.col("ratings.rating")), 'ratingCount'], 
                 [sequelize.literal('(SELECT imgPath FROM images WHERE images.productID = products.productID AND images.position = 1 LIMIT 1)'), 'imgPath'], // to make the response contains the imagePath as an attribute insted of having an attribute of type array containing the imagePath   
-                [sequelize.literal(`(SELECT COUNT(*) FROM wishlist WHERE wishlist.productID = products.productID AND wishlist.userID = ${userID} )`), 'isAddedToWishList'],         
+                [sequelize.literal(`(SELECT COUNT(*) FROM wishList WHERE wishList.productID = products.productID AND wishList.userID = ${userID} )`), 'isAddedToWishList'],         
             ],
             where :{
                 quantity :{
@@ -416,7 +419,7 @@ export const getProductsByDiscoutOrMore = async function (req:Request , res:Resp
                 [sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col("ratings.rating")), 0), 'avgRating'],
                 [sequelize.fn('COUNT', sequelize.col("ratings.rating")), 'ratingCount'], 
                 [sequelize.literal('(SELECT imgPath FROM images WHERE images.productID = products.productID AND images.position = 1 LIMIT 1)'), 'imgPath'], // to make the response contains the imagePath as an attribute insted of having an attribute of type array containing the imagePath   
-                [sequelize.literal(`(SELECT COUNT(*) FROM wishlist WHERE wishlist.productID = products.productID AND wishlist.userID = ${userID} )`), 'isAddedToWishList'],         
+                [sequelize.literal(`(SELECT COUNT(*) FROM wishList WHERE wishList.productID = products.productID AND wishList.userID = ${userID} )`), 'isAddedToWishList'],         
             ],
             where :{
                 discount :{
