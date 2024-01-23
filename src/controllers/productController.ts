@@ -90,12 +90,6 @@ export const getProductsByCategory = async function (req:Request , res:Response)
         const categoryName = req.params.category;
         // const userID = req.user?.userID || null;
 
-        let userID = await isAuthorized(req);
-        if(!userID){
-            userID = null;
-        }
-
-        console.log(userID);
 
         const category = await categoryModel.findOne({
             where : {
@@ -124,8 +118,7 @@ export const getProductsByCategory = async function (req:Request , res:Response)
                 [sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col("ratings.rating")), 0), 'avgRating'],
                 [sequelize.fn('COUNT', sequelize.col("ratings.rating")), 'ratingCount'],
                 [sequelize.literal('(SELECT imgPath FROM images WHERE images.productID = products.productID AND images.position = 1 LIMIT 1)'), 'imgPath'], // to make the response contains the imagePath as an attribute insted of having an attribute of type array containing the imagePath   
-                [sequelize.literal(`(SELECT COUNT(*) FROM wishlist WHERE wishlist.productID = products.productID AND wishlist.userID = ${userID} )`), 'isAddedToWishList'],
-            ],
+             ],
             where :{
                 categoryID : category.dataValues.categoryID
             },
