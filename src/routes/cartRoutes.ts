@@ -5,9 +5,9 @@ const router = express.Router()
 
 router.get('/', sessionMiddleware, getCart)
 router.put('/:productID', sessionMiddleware, updateProductQuantityInCart)
-router.post('/moveToWishList/:productID', sessionMiddleware, moveToWishlist)
-router.post("/" , sessionMiddleware, addToCart);
-router.delete("/:productID" , sessionMiddleware, deleteProductFromCart);
+router.post('/move-to-wishList/:productID', sessionMiddleware, moveToWishlist)
+router.post('/', sessionMiddleware, addToCart)
+router.delete('/:productID', sessionMiddleware, deleteProductFromCart)
 
 export default router
 
