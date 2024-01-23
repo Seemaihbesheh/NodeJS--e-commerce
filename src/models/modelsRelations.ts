@@ -39,11 +39,11 @@ imageModel.belongsTo(productModel, { foreignKey: 'productID' })
 productModel.hasMany(ratingModel,{ foreignKey: 'productID' })
 ratingModel.belongsTo(productModel,{ foreignKey: 'productID' })
 
-cartModel.hasMany(productModel, { foreignKey: 'productID' })
-productModel.belongsTo(cartModel, { foreignKey: 'productID' })
+cartModel.belongsTo(productModel, { foreignKey: 'productID' })
+productModel.hasMany(cartModel, { foreignKey: 'productID' })
 
-wishListModel.hasMany(productModel, { foreignKey: 'productID' })
-productModel.belongsTo(wishListModel, { foreignKey: 'productID' })
+wishListModel.belongsTo(productModel, { foreignKey: 'productID' })
+productModel.hasMany(wishListModel, { foreignKey: 'productID' })
 
 brandModel.hasMany(productModel, { foreignKey: 'brandID' })
 productModel.belongsTo(brandModel, { foreignKey: 'brandID' })
