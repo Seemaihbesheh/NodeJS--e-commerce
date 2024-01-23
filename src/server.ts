@@ -4,7 +4,7 @@ import { syncModels } from './config/db'
 import userRoutes from './controllers/authenticationController'
 import productRoutes from './routes/productRoutes'
 import cartRoutes from './routes/cartRoutes'
-import wishListRoutes from './routes/cartRoutes'
+import wishListRoutes from './routes/wishListRoutes'
 
 const app = express()
 
