@@ -544,6 +544,7 @@ export const handPicked = async (req: Request, res: Response): Promise<any> => {
   
   export const getSpecificProduct = async (req: Request, res: Response): Promise<any> => {
     try {
+
       const productID = req.query.productID as string | undefined;
 
       if (!productID) {

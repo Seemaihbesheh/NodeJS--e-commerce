@@ -6,6 +6,7 @@ import productRoutes from './routes/productRoutes'
 import cartRoutes from './routes/cartRoutes'
 import wishListRoutes from './routes/wishListRoutes'
 import cors from 'cors'
+import profileRoutes from "./routes/profileRoutes"
 
 const app = express()
 app.use(cors())
@@ -17,6 +18,7 @@ app.use('/', userRoutes)
 app.use('/products', productRoutes)
 app.use('/cart', cartRoutes )
 app.use('/wishList', wishListRoutes)
+app.use("/profile" ,profileRoutes )
 
 syncModels()
   .then(() => {
