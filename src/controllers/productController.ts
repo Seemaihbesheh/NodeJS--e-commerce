@@ -546,8 +546,8 @@ export const handPicked = async (req: Request, res: Response): Promise<any> => {
     try {
       const productID = req.query.productID as string | undefined;
 
-      if (!productid) {
-        res.status(400).json({ error: 'productid are required' });
+      if (!productID) {
+        res.status(400).json({ error: 'productID are required' });
         return;
       }
   
@@ -574,7 +574,7 @@ export const handPicked = async (req: Request, res: Response): Promise<any> => {
           }
         ],
         where: {
-          productID: productid
+          productID: productID
         },
         group: ['productID', 'imageID'],
         subQuery: false
