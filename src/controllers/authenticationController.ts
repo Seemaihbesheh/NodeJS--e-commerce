@@ -1,14 +1,14 @@
 import { userInstance } from '../models/user'
-import { userModel, sessionModel } from '../models/modelsRelations'
+import * as models from '../models/modelsRelations'
 import express, { Request, Response } from 'express'
-const router = express.Router()
 import bcrypt from 'bcrypt'
 import { v4 as uuidv4 } from 'uuid'
 import { sessionMiddleware, CustomRequest } from '../middlewares/sessionMiddleware'
+const router = express.Router()
 
 export async function findUser(email: string): Promise<userInstance> {
     try {
-        const foundUser = await userModel.findOne({ where: { email: email } })
+        const foundUser = await models.userModel.findOne({ where: { email: email } })
         return foundUser
     } catch (err) {
         throw new Error('Error finding user:' + err.message)
@@ -34,11 +34,11 @@ router.post('/signup', async (req: Request, res: Response) => {
         }
         
         const userData: userInstance = req.body
-        const newUser = await userModel.create({ email: userData.email, password: userData.password, firstName: firstName, lastName: lastName })
+        const newUser = await models.userModel.create({ email: userData.email, password: userData.password, firstName: firstName, lastName: lastName })
 
         const sessionID: string = generateSessionID()
         let sessionData = { "sessionID": sessionID, "userID": newUser.userID }
-        console.log(await sessionModel.create(sessionData))
+        console.log(await models.sessionModel.create(sessionData))
         res.status(200).json({ "sessionID": sessionID })
     }
     catch (err) {
@@ -64,7 +64,7 @@ router.post('/login', async (req: Request, res: Response) => {
             } else if (result) {
                 const sessionID: string = generateSessionID()
                 let sessionData = { "sessionID": sessionID, "userID": foundUser.userID }
-                console.log(await sessionModel.create(sessionData))
+                console.log(await models.sessionModel.create(sessionData))
                 res.status(200).json({ "sessionID": sessionID })
             } else {
                 res.status(401).json('Invalid username or password')
@@ -93,12 +93,12 @@ router.post('/changePassword', sessionMiddleware, async (req: CustomRequest, res
             const salt = await bcrypt.genSalt(10)
             const hashedPass = await bcrypt.hash(newPassword, salt)
             try {
-                await userModel.update(
+                await models.userModel.update(
                     { password: hashedPass },
                     { where: { email }, ...{ validate: false } }
                 )
                 let sessionData = req.session
-                await sessionModel.destroy({ where: { userID: sessionData.userID } })
+                await models.sessionModel.destroy({ where: { userID: sessionData.userID } })
                 res.json('password updated succesfully')
 
             } catch (err) {
@@ -122,13 +122,13 @@ router.delete('/logout', sessionMiddleware, async (req: CustomRequest, res: Resp
     try {
         let sessionData = req.session
 
-        const userSession = await sessionModel.findOne({ where: { sessionID: sessionData.sessionID } })
+        const userSession = await models.sessionModel.findOne({ where: { sessionID: sessionData.sessionID } })
 
         if (!userSession) {
             return res.status(404).json({ error: 'No sessions found for the user' })
         }
 
-        await sessionModel.destroy({ where: { sessionID: sessionData.sessionID } })
+        await models.sessionModel.destroy({ where: { sessionID: sessionData.sessionID } })
 
         res.status(200).json({ message: 'Logged out successfully' })
     } catch (error) {
@@ -136,4 +136,5 @@ router.delete('/logout', sessionMiddleware, async (req: CustomRequest, res: Resp
     }
 
 })
+
 export default router

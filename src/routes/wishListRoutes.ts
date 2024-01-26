@@ -1,10 +1,10 @@
 import express, { Request, Response } from 'express'
 const router = express.Router();
-import {getWishList,toggleWishlist} from '../controllers/wishListController'
+import * as wishListController from '../controllers/wishListController'
 import {sessionMiddleware} from "../middlewares/sessionMiddleware"
 
-router.get('/', sessionMiddleware, getWishList)
+router.get('/', sessionMiddleware, wishListController.getWishList)
 
-router.post('/:productID', sessionMiddleware, toggleWishlist)
+router.post('/:productID', sessionMiddleware, wishListController.toggleWishlist)
 
 export default router
