@@ -23,7 +23,7 @@ export const getSpecificOrder = async function (orderID: number): Promise<any>  
                         'productPrice',
                         'productQuantity',
                         'productDiscount',
-                        [sequelize.literal('(SELECT imgPath FROM images WHERE images.productID = orderItemModel.productID AND images.position = 1 LIMIT 1)'), 'imgPath'],
+                        [sequelize.literal('(SELECT imgPath FROM images WHERE images.productID = orderitems.productID AND images.position = 1 LIMIT 1)'), 'imgPath'],
                     ],
                 },
             ],
