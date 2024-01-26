@@ -61,24 +61,6 @@ async function isAuthorized(req: Request): Promise<boolean | number> {
   }
 }
 
-async function getProductsAndIsAdded(req: Request, products: any[]): Promise<any[]> {
-  const userID = await isAuthorized(req)
-  if (!userID) {
-    return products.map((product) => ({
-      ...product.toJSON(),
-      isAddedToWishList: 0,
-    }))
-  }
-
-  const isAddedPromises = products.map(product => isAdedToWishlist(userID, product.productID))
-  const isAddedResults = await Promise.all(isAddedPromises);
-
-  return products.map((product, index) => ({
-    ...product.toJSON(),
-    isAddedToWishList: isAddedResults[index],
-  }))
-}
-
 export const getProductsByCategory = async function (req: Request, res: Response): Promise<any> {
   try {
     const page = Number(req.query.page) || 1;
@@ -107,7 +89,7 @@ export const getProductsByCategory = async function (req: Request, res: Response
       where: {
         categoryID: category.dataValues.categoryID
       }
-    })
+    });
 
     const result = await productModel.findAll({
       attributes: [
@@ -127,15 +109,6 @@ export const getProductsByCategory = async function (req: Request, res: Response
       },
       include: [
         {
-          model: imageModel,
-          attributes: [],
-          where: {
-            position: 1
-          },
-          as: "images",
-          required: false
-        },
-        {
           model: ratingModel,
           attributes: [],
           as: "ratings",
@@ -147,7 +120,7 @@ export const getProductsByCategory = async function (req: Request, res: Response
       order: ["productID"],
       limit: pageSize,
       subQuery: false
-    })
+    });
 
 
     res.json({
@@ -187,7 +160,7 @@ export const getProductsByBrand = async function (req: Request, res: Response): 
       where: {
         brandID: brand.dataValues.brandID
       }
-    })
+    });
 
     const result = await productModel.findAll({
       attributes: [
@@ -207,14 +180,6 @@ export const getProductsByBrand = async function (req: Request, res: Response): 
       },
       include: [
         {
-          model: imageModel,
-          attributes: [],
-          where: {
-            position: 1
-          },
-          required: false
-        },
-        {
           model: ratingModel,
           attributes: [],
           required: false,
@@ -227,7 +192,7 @@ export const getProductsByBrand = async function (req: Request, res: Response): 
       order: ["productID"],
       subQuery: false
 
-    })
+    });
     res.json({
       totalCount: count,
       products: result
@@ -247,7 +212,7 @@ export const getNewArrivalProducts = async function (req: Request, res: Response
 
     let userID = await isAuthorized(req);
     if (!userID) {
-      userID = null
+      userID = null;
     }
 
     const threeMonthsAgo = new Date();
@@ -259,7 +224,7 @@ export const getNewArrivalProducts = async function (req: Request, res: Response
           [Op.gt]: threeMonthsAgo,
         },
       }
-    })
+    });
 
     const result = await productModel.findAll({
       attributes: [
@@ -282,14 +247,6 @@ export const getNewArrivalProducts = async function (req: Request, res: Response
       },
       include: [
         {
-          model: imageModel,
-          attributes: [],
-          where: {
-            position: 1
-          },
-          required: false
-        },
-        {
           model: ratingModel,
           attributes: [],
           required: false,
@@ -301,12 +258,12 @@ export const getNewArrivalProducts = async function (req: Request, res: Response
       limit: pageSize,
       order: [["arrivalDate", "DESC"]],
       subQuery: false
-    })
+    });
 
     res.json({
       totalCount: count,
       products: result
-    })
+    });
 
   } catch (error) {
     console.log(error.message)
@@ -331,7 +288,7 @@ export const getLimitedProducts = async function (req: Request, res: Response): 
           [Op.lt]: 20,
         }
       }
-    })
+    });
 
     const result = await productModel.findAll({
       attributes: [
@@ -353,14 +310,6 @@ export const getLimitedProducts = async function (req: Request, res: Response): 
         }
       },
       include: [
-        {
-          model: imageModel,
-          attributes: [],
-          where: {
-            position: 1
-          },
-          required: false
-        },
         {
           model: ratingModel,
           attributes: [],
@@ -426,14 +375,7 @@ export const getProductsByDiscoutOrMore = async function (req: Request, res: Res
         }
       },
       include: [
-        {
-          model: imageModel,
-          attributes: [],
-          where: {
-            position: 1
-          },
-          required: false
-        },
+
         {
           model: ratingModel,
           attributes: [],
@@ -458,11 +400,10 @@ export const getProductsByDiscoutOrMore = async function (req: Request, res: Res
   }
 }
 
-
-
-export const handPicked = async (req: Request, res: Response): Promise<any> => {
+export const handPicked = async (req: CustomRequest, res: Response): Promise<any> => {
   try {
-    let productsWithIsAdded = []
+
+    const userID = req.user?.userID || null
     const categoryName = req.query.category as string | undefined;
     const page = Number(req.query.page) || 1;
     const pageSize = Number(req.query.pageSize) || 20;
@@ -472,80 +413,56 @@ export const handPicked = async (req: Request, res: Response): Promise<any> => {
         name: categoryName
       }
     })
-    if (category) {
-      const handPickedProducts = await productModel.findAll({
-        attributes: [
-          "productID",
-          "title",
-          "subTitle",
-          "price",
-          "discount",
-          [sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col("ratings.rating")), 0), 'avgRating'],
-          [sequelize.fn('COUNT', sequelize.col("ratings.rating")), 'ratingCount'],
-          [sequelize.literal('(SELECT imgPath FROM images WHERE images.productID = products.productID AND images.position = 1 LIMIT 1)'), 'imgPath'], // to make the response
-        ],
-        include: [
-          {
-            model: ratingModel,
-            attributes: [],
-            as: "ratings",
-            where: { rating: { [Op.gt]: 4.5 } },
-            required: false
-          }
-          , {
-            model: categoryModel,
-            attributes: [],
-            where: {
-              categoryID: category.categoryID,
+    if (!category) { return res.status(404).json('No Products Found'); }
 
-            }
-          },
-          {
-            model: imageModel,
-            attributes: [],
-            where: sequelize.literal('position = 1'),
-            required: false
-          }
-        ],
-        where: {
-          price: { [Op.lt]: 100 },
-        },
-        group: ['productID'],
-        offset: (page - 1) * pageSize,
-        limit: pageSize,
-        order: [[sequelize.literal('avgRating'), 'DESC']],
-        subQuery: false
-      })
-      for (const product of handPickedProducts) {
-        let ratingCount = await ratingModel.count({
-          where: {
-            productID: product.productID,
-          },
-        });
-      }
-      const count = handPickedProducts.length;
-
-      productsWithIsAdded = await getProductsAndIsAdded(req, handPickedProducts)
-      return res.status(200).json(
+    const handPickedProducts = await productModel.findAll({
+      attributes: [
+        "productID",
+        "title",
+        "subTitle",
+        "price",
+        "discount",
+        [sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col("ratings.rating")), 0), 'avgRating'],
+        [sequelize.fn('COUNT', sequelize.col("ratings.rating")), 'ratingCount'],
+        [sequelize.literal('(SELECT imgPath FROM images WHERE images.productID = products.productID AND images.position = 1 LIMIT 1)'), 'imgPath'],
+        [sequelize.literal(`(SELECT COUNT(*) FROM wishlist WHERE wishlist.productID = products.productID AND wishlist.userID = ${userID} )`), 'isAddedToWishList'],
+      ],
+      include: [
         {
-          "totalCount": count,
-          "products": productsWithIsAdded,
-        });
-    } else {
-      return res.status(404).json('No Products Found');
-    }
+          model: ratingModel,
+          attributes: [],
+          as: "ratings",
+          required: false
+        }
+      ],
+      where: {
+        price: { [Op.lt]: 100 },
+      },
+      having: sequelize.literal('avgRating >= 4.5'),
+      group: ['productID'],
+      offset: (page - 1) * pageSize,
+      limit: pageSize,
+      order: [[sequelize.literal('avgRating'), 'DESC']],
+      subQuery: false
+    })
+    const count = handPickedProducts.length;
+
+    return res.status(200).json(
+      {
+        "totalCount": count,
+        "products": handPickedProducts,
+      })
+
   } catch (error) {
     res.status(500).json('Internal Server Error');
   }
 }
 
-
-
 export const getSpecificProduct = async (req: Request, res: Response): Promise<any> => {
   try {
-    const productid = req.params.productID as string | undefined;
+    const productID = req.query.productID as string | undefined;
 
-    if (!productid) {
+    if (!productID) {
       res.status(400).json({ error: 'productid are required' });
       return;
     }
@@ -575,7 +492,7 @@ export const getSpecificProduct = async (req: Request, res: Response): Promise<a
         }
       ],
       where: {
-        productID: productid
+        productID: productID
       },
       group: ['productID', 'imageID'],
       subQuery: false
@@ -591,8 +508,6 @@ export const getSpecificProduct = async (req: Request, res: Response): Promise<a
   }
 
 }
-
-
 
 export const rateProduct = async (req: CustomRequest, res: Response): Promise<any> => {
   try {
@@ -636,7 +551,6 @@ export const rateProduct = async (req: CustomRequest, res: Response): Promise<an
   }
 }
 
-
 export const getRateAndReview = async (req: Request, res: Response): Promise<any> => {
 
   try {
@@ -679,5 +593,26 @@ export const getRateAndReview = async (req: Request, res: Response): Promise<any
   }
 }
 
-
-
+export const searchProduct = async (req: Request, res: Response): Promise<any> => {
+  const searchQuery = req.query.searchQuery
+  try {
+    const products = await productModel.findAll(
+      {
+        attributes:
+          [
+            "title",
+            "subTitle",
+            [sequelize.literal('(SELECT name FROM brand WHERE brand.brandID = products.brandID )'), 'brandName'],
+          ],
+      }
+    )
+    const searcher = new FuzzySearch(products, ['title', 'subTitle', 'brandName'], {
+      caseSensitive: false,
+    })
+    const result = searcher.search(searchQuery)
+    res.send(result)
+  }
+  catch (err) {
+    res.send('blabla3')
+  }
+}
