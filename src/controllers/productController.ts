@@ -560,6 +560,7 @@ export const handPicked = async (req: Request, res: Response): Promise<any> => {
           "description",
           "price",
           "discount",
+         [sequelize.fn('COUNT', sequelize.col("ratings.rating")), 'ratingCount'],
         ],
   
         include: [
