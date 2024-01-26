@@ -544,10 +544,11 @@ export const handPicked = async (req: Request, res: Response): Promise<any> => {
   
   export const getSpecificProduct = async (req: Request, res: Response): Promise<any> => {
     try {
-      const productID = req.params.productID as string | undefined;
-  
+
+      const productID = req.query.productID as string | undefined;
+
       if (!productID) {
-        res.status(400).json({ error: 'productid are required' });
+        res.status(400).json({ error: 'productID are required' });
         return;
       }
   

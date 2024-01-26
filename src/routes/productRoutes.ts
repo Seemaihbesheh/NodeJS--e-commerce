@@ -13,7 +13,7 @@ router.get('/discount/:discount', getProductsByDiscoutOrMore)
 
 
 router.get('/handpicked', handPicked)
-router.get('/:productID', getSpecificProduct)
+router.get('/product', getSpecificProduct)
 router.post('/rate/:productID', sessionMiddleware,rateProduct)
 router.get('/ratings-and-reviews/:productID', getRateAndReview)
 
