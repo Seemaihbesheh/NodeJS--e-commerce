@@ -610,9 +610,9 @@ export const searchProduct = async (req: Request, res: Response): Promise<any> =
       caseSensitive: false,
     })
     const result = searcher.search(searchQuery)
-    res.send(result)
+    res.status(200).send(result)
   }
   catch (err) {
-    res.send('blabla3')
+    res.status(500).send(err.message)
   }
 }
