@@ -4,15 +4,15 @@ import { DataTypes, Model } from "sequelize"
 interface orderInstance extends Model {
   orderID: number,
   userID: number,
-  firstName: string,
-  lastName: string,
+  fullName: string,
   email: string,
   mobile: string,
   addressID: number,
   status: string,
   date: string,
   paymentMethod: string,
-  subTotal: number
+  subTotal: number,
+  displayID: number
 }
 const orderModel = sequelize.define<orderInstance>('orderDetails', {
     orderID: {
@@ -23,11 +23,7 @@ const orderModel = sequelize.define<orderInstance>('orderDetails', {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    firstName: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    lastName: {
+    fullName: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -61,6 +57,10 @@ const orderModel = sequelize.define<orderInstance>('orderDetails', {
     },
     subTotal: {
       type: DataTypes.FLOAT,
+      allowNull: false
+    },
+    displayID: {
+      type: DataTypes.INTEGER,
       allowNull: false
     }
   }, {

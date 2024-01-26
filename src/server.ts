@@ -4,9 +4,7 @@ import { syncModels } from './config/db'
 import userRoutes from './controllers/authenticationController'
 import productRoutes from './routes/productRoutes'
 import cartRoutes from './routes/cartRoutes'
-import wishListRoutes from './routes/wishListRoutes'
-import cors from 'cors'
-import profileRoutes from "./routes/profileRoutes"
+import wishListRoutes from './routes/cartRoutes'
 
 const app = express()
 app.use(cors())
@@ -19,6 +17,7 @@ app.use('/products', productRoutes)
 app.use('/cart', cartRoutes )
 app.use('/wishList', wishListRoutes)
 app.use("/profile" ,profileRoutes )
+app.use('/orders', orderRoutes)
 
 syncModels()
   .then(() => {

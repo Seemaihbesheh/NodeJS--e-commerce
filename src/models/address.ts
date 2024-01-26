@@ -9,8 +9,8 @@ interface addressInstance extends Model {
     city: string,
     pinCode: number
   }
-const addressModel = sequelize.define<addressInstance> ('adresses',{
-    adressID: {
+const addressModel = sequelize.define<addressInstance> ('addresses',{
+    addressID: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
