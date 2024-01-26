@@ -613,6 +613,6 @@ export const searchProduct = async (req: Request, res: Response): Promise<any> =
     res.status(200).send(result)
   }
   catch (err) {
-    res.status(500).send(err.message)
+    res.status(500).send('Internal Server Error')
   }
 }
