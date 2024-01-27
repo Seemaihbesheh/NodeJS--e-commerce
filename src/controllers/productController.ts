@@ -130,7 +130,7 @@ export const getProductsByCategory = async function (req: Request, res: Response
 
   } catch (error) {
     console.log(error.message)
-    res.status(500).json('Internal Server Error')
+    res.status(500).json(error.message)
   }
 }
 
