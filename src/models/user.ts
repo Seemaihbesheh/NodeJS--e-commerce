@@ -10,7 +10,8 @@ interface userInstance extends Model {
   email: string,
   password: string,
   mobile: string,
-  image: string
+  image: string,
+  dateOfBirth : Date
 }
 const userModel = sequelize.define<userInstance>('users', {
   userID: {
@@ -39,6 +40,9 @@ const userModel = sequelize.define<userInstance>('users', {
   },
   image: {
     type: DataTypes.STRING
+  },
+  dateOfBirth:{
+    type: DataTypes.DATE
   }
 }, {
   timestamps: false,
@@ -46,7 +50,7 @@ const userModel = sequelize.define<userInstance>('users', {
 })
 
 userModel.beforeSave(async (thisUser: any) => {
-  if (thisUser.changed('password') || thisUser.isNewRecord) {
+  if ( thisUser.isNewRecord && thisUser.password) {
     const salt = await bcrypt.genSalt(10)
     const hashedPass = await bcrypt.hash(thisUser.password, salt)
     thisUser.password = hashedPass
@@ -55,12 +59,12 @@ userModel.beforeSave(async (thisUser: any) => {
 
 userModel.beforeValidate(async (thisUser: any) => {
   console.log(thisUser.password)
-  if (thisUser.isNewRecord || thisUser.changed('password')) {
+  if (thisUser.isNewRecord && thisUser.password) {
     const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     if (!thisUser.password.match(passwordPattern)) {
       throw new Error('Password does not meet requirements: It must be at least 8 characters long and include a mix of uppercase and lowercase letters, numbers, and special characters');
     }
-  } else if (thisUser.changed('email')) {
+  } else if (thisUser.changed('email') && thisUser.password ) {
     const foundUser = await findUser(thisUser.email)
     if (foundUser) {
       throw new Error('Email already exists')

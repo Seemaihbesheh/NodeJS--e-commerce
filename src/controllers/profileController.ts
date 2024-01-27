@@ -73,27 +73,27 @@ export const updateUserProfile = async function (req:CustomRequest , res:Respons
     try{
         const userID = req.user.userID;
 
-        const {firstName , lastName } = req.body;
+        const {firstName , lastName , mobile , dateOfBirth} = req.body;
 
         if(!firstName || !lastName ){
             return res.status(404).json("Invalid input");
         }
 
-        // if(mobile){
-        //     // phone number should be in this format "+xx xx-xxx-xxxx" or "+xxx xx-xxx-xxxx"
-        //     const phoneRegex = /^\+(\d{2,3})\s(\d{2})-(\d{3})-(\d{4})$/;
-        //     if(!phoneRegex.test(mobile)){
-        //         return res.status(404).json("Invalid phone number");
-        //     }
-        // }
+        if(mobile){
+            // phone number should be in this format "+xx xx-xxx-xxxx" or "+xxx xx-xxx-xxxx"
+            const phoneRegex = /^\+(\d{2,3})\s(\d{2})-(\d{3})-(\d{4})$/;
+            if(!phoneRegex.test(mobile)){
+                return res.status(404).json("Invalid phone number");
+            }
+        }
 
         console.log(userID)
         
         const result = await userModel.update({
             firstName : firstName,
             lastName : lastName,
-            // mobile :mobile,
-            // dateOfBirth : dateOfBirth
+            mobile :mobile,
+            dateOfBirth : dateOfBirth
         }, {
             where: {
                 userID: userID
