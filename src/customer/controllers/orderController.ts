@@ -104,7 +104,7 @@ export const placeOrder = async function (req: CustomRequest, res: Response): Pr
       await orderSevices.createOrderItem(element, orderID, transaction)
       let productID = element.productID
       let newQuantity = this.quantity - element.productQuantity
-      await productSevices.updateProductQuantity(productID, newQuantity, transaction)
+      await productSevices.updateProduct(productID, {quantity:newQuantity}, transaction)
       await cartServices.updateProductInCart(productID, userID, { isOrdered: true }, transaction)
 
     }))
