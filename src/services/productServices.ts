@@ -25,20 +25,6 @@ export const getProduct = async function (productID: number, options?: any): Pro
   }
 }
 
-export async function updateProductQuantity(productID: number, newQuantity: number, transaction?: any): Promise<void> {
-  try {
-    await models.productModel.update(
-      { quantity: newQuantity },
-      {
-        where: { productID },
-        transaction: transaction
-      }
-    );
-  } catch (error) {
-    throw error
-  }
-}
-
 export const getAllProducts = async (req: CustomRequest, res: Response, options: any): Promise<any> => {
   try {
     const page = Number(req.query.page) || 1;
@@ -75,5 +61,28 @@ export const getAllProducts = async (req: CustomRequest, res: Response, options:
 
   } catch (error) {
     throw(error)
+  }
+}
+
+export async function createProduct(newProduct): Promise<any> {
+  try {
+    await models.productModel.create(newProduct)
+
+  } catch (error) {
+    throw error
+  }
+}
+
+export async function updateProduct(productID: number, updatedFields, transaction?: any): Promise<void> {
+  try {
+    await models.productModel.update(
+      updatedFields,
+      {
+        where: { productID },
+        transaction: transaction
+      }
+    );
+  } catch (error) {
+    throw error
   }
 }
