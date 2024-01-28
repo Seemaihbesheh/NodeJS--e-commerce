@@ -1,6 +1,7 @@
 import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
-
+import Joi from "joi";
+import validateData from '../validators/validateSchema';
 interface cartInstance extends Model {
   cartID: number,
   userID: number,
@@ -38,4 +39,16 @@ const cartModel = sequelize.define<cartInstance>('cart', {
     tableName: 'cart'
   })
 
-  export { cartModel, cartInstance }
+// Joi schema for validation
+const cartValidationSchema = Joi.object({
+  userID: Joi.number().integer().positive().required(),
+  productID: Joi.number().integer().positive().required(),
+  productQuantity: Joi.number().integer().min(1).required(),
+  isOrdered: Joi.boolean().required(),
+}).options({ abortEarly: false, stripUnknown: true });
+
+
+cartModel.beforeCreate(validateData(cartModel, cartValidationSchema));
+cartModel.beforeUpdate(validateData(cartModel, cartValidationSchema));
+
+export { cartModel, cartInstance };

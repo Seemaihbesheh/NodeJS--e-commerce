@@ -1,11 +1,97 @@
-import { sequelize } from "../config/db"
+import { sequelize } from "../../config/db"
 import { Request, Response } from 'express'
 import { CustomRequest } from "../middlewares/sessionMiddleware";
-import { ratingModel } from "../models/rating";
-import { productModel } from "../models/product";
-import { imageModel } from "../models/images";
-import { userModel } from "../models/user";
+import { ratingModel } from "../../models/rating";
+import { productModel } from "../../models/product";
+import { imageModel } from "../../models/images";
+import { userModel } from "../../models/user";
 
+
+
+
+
+interface MulterRequest extends Request,CustomRequest {
+    file: {
+      buffer: Buffer;
+    };
+  }
+  
+  export const uploadPhoto = async (req: MulterRequest, res: Response): Promise<any> => {
+    try {
+     // const newImage = req.file.filename;
+      const userID = req.user.userID;
+      if (!userID ) {
+        return res.status(400).json( 'Invalid input' );
+      }
+     const fileBuffer = req.file?.buffer;
+    console.log('New Image:', fileBuffer);
+    
+      if (!fileBuffer) {
+        return res.status(400).json({ error: 'No file uploaded' });
+      }
+     // return res.status(200).json(fileBuffer);
+      const  updatedUser = await userModel.update(
+        { image: fileBuffer },
+        {
+          where: { userID: userID },
+          returning: true,
+        }
+      );
+  
+      const user= await userModel.findOne({
+          where: { userID: userID }
+      })
+  
+      if(!updatedUser){
+        return res.status(400).json("Uploaded Failed");
+      }
+      return res.status(200).json(user.image);
+      
+    } catch (error) {
+      console.error('Error in uploadPhoto:', error);
+      return res.status(500).json(error.message);
+    }
+  };
+  
+  export const deletePhoto= async (req: CustomRequest, res: Response) => {
+    try {
+       
+      const userID = req.user.userID;
+       
+  
+        if (!userID) {
+            return res.status(404).json({ error: 'User Not found ' })
+        }
+        const existPhoto = await userModel.findOne({
+          where: { userID: userID },
+          attributes: ['image'],
+        });
+        
+        if (!existPhoto.image) {
+          return res.status(400).json( 'User image not found or does not exist.');
+        }
+  
+        const deletePhoto = await userModel.update(
+          { image: null },
+          {
+            where: { userID: userID },
+            returning: true,
+          }
+        );
+  
+        if(!deletePhoto){
+          return res.status(404).json(' Failed Delete Photo');
+        }
+  
+        return res.status(200).json('Delete Photo successfully' )
+    } catch (error) {
+        res.status(500).json( 'Failed to Delete Photo')
+    }
+  }
+  
+  
+
+  
 export const getMyRatingsAndReviews = async function (req:CustomRequest , res:Response): Promise<any>{
     try{
         const userID = req.user.userID;

@@ -1,5 +1,5 @@
-import { userInstance } from '../models/user'
-import * as models from '../models/modelsRelations'
+import { userInstance } from '../../models/user'
+import * as models from '../../models/modelsRelations'
 import express, { Request, Response } from 'express'
 import bcrypt from 'bcrypt'
 import { v4 as uuidv4 } from 'uuid'

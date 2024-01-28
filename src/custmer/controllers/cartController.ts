@@ -1,5 +1,5 @@
 import { Response } from 'express'
-import * as cartServices from '../services/cartServices'
+import * as cartServices from '../../services/cartServices'
 import { CustomRequest } from '../middlewares/sessionMiddleware'
 
 export const getCartContent = async function (req: CustomRequest, res: Response): Promise<any> {

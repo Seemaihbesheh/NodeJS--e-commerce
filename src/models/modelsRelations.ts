@@ -66,7 +66,7 @@ export {
     orderItemModel, 
     productModel, 
     imageModel,
-    categoryModel
+    categoryModel,brandModel
 }
 // user has many sessions
 // user has many carts

@@ -1,9 +1,9 @@
-import { sequelize } from "../config/db"
-import { productModel, imageModel, ratingModel, sessionModel, userModel, categoryModel } from "../models/modelsRelations"
-import { CustomRequest } from "../middlewares/sessionMiddleware"
+import { sequelize } from "../../config/db"
+import { productModel, imageModel, ratingModel, sessionModel, userModel, categoryModel } from '../../models/modelsRelations'
+import { CustomRequest } from '../middlewares/sessionMiddleware'
 import { Request, Response } from 'express'
 import { Op } from 'sequelize'
-import { brandModel } from "../models/brand"
+import { brandModel } from "../../models/brand"
 import FuzzySearch from 'fuzzy-search'
 
 
@@ -511,15 +511,27 @@ export const getSpecificProduct = async (req: Request, res: Response): Promise<a
 
 export const rateProduct = async (req: CustomRequest, res: Response): Promise<any> => {
   try {
-
-    const rate = req.body.rating;
+    const rating = req.body.rating;
     const productID = req.params.productID;
     const userID = req.user.userID;
 
     // Validate input
-    if (!userID || !rate || !productID) {
-      return res.status(400).json({ error: 'Invalid input' });
+    if (!userID || !productID) {
+      return res.status(400).json('Invalid input');
     }
+    if (!rating || isNaN(rating)) {
+      return res.status(400).json('Invalid input');
+    }
+    const existProduct = await productModel.findOne({
+      where: {
+        productID: productID,
+      },
+    });
+
+    if (!existProduct) {
+      return res.status(404).json('Product Not Found');
+    }
+
 
     const existRate = await ratingModel.findOne({
       where: {
@@ -532,24 +544,41 @@ export const rateProduct = async (req: CustomRequest, res: Response): Promise<an
     if (!existRate) {
       const newRating = await ratingModel.create({
         userID: userID,
-        rating: rate,
+        rating: rating,
         productID: productID,
       });
 
 
       return res.status(200).json(
-        "Rated Successfully",
+        " Added Rated Successfully",
       );
     }
-    else {
-      return res.status(400).json('Already Rated');
+    else { //existRate
+      if (existRate.rating !== rating) {
+        const updatedRows = await ratingModel.update(
+          {
+            rating: rating,
+          },
+          {
+            where: {
+              userID: userID,
+              productID: productID,
+            },
+          }
+        );
+        return res.status(200).json("Update Rating Successfully");
+      }
+
+
+     
     }
 
-  } catch (error) {
 
+  } catch (error) {
     return res.status(500).json('Internal Server Error');
   }
 }
+
 
 export const getRateAndReview = async (req: Request, res: Response): Promise<any> => {
 

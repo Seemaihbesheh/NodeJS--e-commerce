@@ -1,6 +1,6 @@
 import { Response } from 'express'
 import { CustomRequest } from '../middlewares/sessionMiddleware'
-import * as WishlistService from '../services/wishlistServices'
+import * as WishlistService from '../../services/wishlistServices'
 
 export const getWishList = async function (req: CustomRequest, res: Response): Promise<any> {
     try {

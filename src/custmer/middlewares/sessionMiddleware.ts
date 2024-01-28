@@ -1,4 +1,4 @@
-import { sessionModel, userModel } from '../models/modelsRelations'
+import { sessionModel, userModel } from '../../models/modelsRelations'
 import { NextFunction, Request, Response } from 'express'
 interface CustomRequest extends Request {
   session?: any,
