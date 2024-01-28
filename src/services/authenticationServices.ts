@@ -13,7 +13,7 @@ export async function signUp(userData: any): Promise<{ sessionID: string }> {
             throw new CustomError('All fields are required', 400)
         }
 
-        const foundUser = await userServices.findUser(email)
+        const foundUser = await userServices.findUser({email:email})
 
         if (foundUser) {
             throw new CustomError('Email already exists', 400)
