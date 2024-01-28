@@ -4,11 +4,7 @@ import { sequelize } from "../config/db"
 
 export const findUser = async function (findBy: { userID?: number; email?: string }): Promise<any> {
   try {
-    const foundUser = await models.userModel.findOne({ where: { findBy } })
-
-    if (!foundUser) {
-      throw new CustomError('User Not found', 500)
-    }
+    const foundUser = await models.userModel.findOne({ where:  findBy  })
     return foundUser
 
   } catch (err) {
