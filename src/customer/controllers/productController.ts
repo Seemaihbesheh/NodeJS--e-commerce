@@ -1,268 +1,106 @@
 import { sequelize } from "../../config/db"
-import * as models from "../../models/modelsRelations"
+import { productModel, imageModel, ratingModel, sessionModel, userModel, categoryModel } from "../../models/modelsRelations"
 import { CustomRequest } from "../middlewares/sessionMiddleware"
 import { Request, Response } from 'express'
 import { Op } from 'sequelize'
 import { brandModel } from "../../models/brand"
 import FuzzySearch from 'fuzzy-search'
+import { getAllProducts } from "../../services/productServices"
 
 
-export const getTrendyProducts = async function (req: CustomRequest, res: Response): Promise<any> {
-  try {
-    const userID = req.user?.userID || null
-    const page = Number(req.query.page) || 1
-    const pageSize = Number(req.query.pageSize) || 20
-    const trendyProducts = await models.productModel.findAll({
-      attributes: [
-        "productID",
-        "title",
-        "subTitle",
-        "price",
-        "discount"
-        , [sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col("ratings.rating")), 0), 'avgRating'],
-        [sequelize.fn('COUNT', sequelize.col("ratings.rating")), 'ratingCount'],
-        [sequelize.literal('(SELECT imgPath FROM images WHERE images.productID = products.productID AND images.position = 1 LIMIT 1)'), 'imgPath'],
-        [sequelize.literal(`(SELECT COUNT(*) FROM wishlist WHERE wishlist.productID = products.productID AND wishlist.userID = ${userID} )`), 'isAddedToWishList'],
-
-      ],
-      include: [
-        {
-          model: models.ratingModel,
-          attributes: [],
-          as: "ratings",
-          required: false
-        }
-      ],
-      group: ['productID'],
-      having: sequelize.literal('avgRating >= 4.5'),
-      order: [[sequelize.literal('avgRating'), 'DESC']],
-      limit: pageSize,
-      offset: (page - 1) * pageSize,
-      subQuery: false
-
-    })
-    const count = trendyProducts.length
-
-    return res.status(200).json({ "totalCount": count, "products": trendyProducts })
-  } catch (err) {
-    res.status(500).json('Internal Server Error')
-  }
-}
-
-async function isAuthorized(req: Request): Promise<boolean | number> {
-  const { headers: headersData } = req
-  if (!headersData.authorization) {
-    return false
-  }
-  else {
-    const foundSession = await models.sessionModel.findOne({ where: { sessionID: headersData.authorization } })
-    const foundUser = await models.userModel.findOne({ where: { userID: foundSession.userID } })
-    return foundUser.userID
-  }
-}
-
-export const getProductsByCategory = async function (req: Request, res: Response): Promise<any> {
-  try {
-    const page = Number(req.query.page) || 1;
-    const pageSize = Number(req.query.pageSize) || 20;
+export const getProductsByCategory = async (req: CustomRequest, res: Response): Promise<any> => {
+  try{
     const categoryName = req.params.category;
-    // const userID = req.user?.userID || null;
-
-    let userID = await isAuthorized(req);
-    if (!userID) {
-      userID = null;
-    }
-
-    console.log(userID);
-
-    const category = await models.categoryModel.findOne({
-      where: {
-        name: categoryName
-      }
+    const category = await categoryModel.findOne({
+          where: {
+              name: categoryName
+          }
     })
-
+      
     if (!category) {
-      return res.status(404).json("category does not exist")
+        return res.status(404).json("category does not exist")
     }
-
-    const count = await models.productModel.count({
+    
+    const options = {
       where: {
-        categoryID: category.dataValues.categoryID
-      }
-    });
-
-    const result = await models.productModel.findAll({
-      attributes: [
-        "productID",
-        "title",
-        "subTitle",
-        "price",
-        "discount",
-        //the COALESCE function is used to replace the avgRating value with 0 if it is null.
-        [sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col("ratings.rating")), 0), 'avgRating'],
-        [sequelize.fn('COUNT', sequelize.col("ratings.rating")), 'ratingCount'],
-        [sequelize.literal('(SELECT imgPath FROM images WHERE images.productID = products.productID AND images.position = 1 LIMIT 1)'), 'imgPath'], // to make the response contains the imagePath as an attribute insted of having an attribute of type array containing the imagePath   
-        [sequelize.literal(`(SELECT COUNT(*) FROM wishList WHERE wishList.productID = products.productID AND wishList.userID = ${userID} )`), 'isAddedToWishList'],
-      ],
-      where: {
-        categoryID: category.dataValues.categoryID
+        categoryID: category.dataValues.categoryID,
       },
-      include: [
-        {
-          model: models.ratingModel,
-          attributes: [],
-          as: "ratings",
-          required: false
-        },
-      ],
-      group: ['productID'],
-      offset: (page - 1) * pageSize,
-      order: ["productID"],
-      limit: pageSize,
-      subQuery: false
+      order: ['productID'],
+    };
+
+    const count = await productModel.count({
+      where : options.where
     });
 
-
+    const result =await getAllProducts(req, res, options);
     res.json({
-      totalCount: count,
-      products: result
+      totalCount: count, 
+      products: result,
     });
 
-  } catch (error) {
-    console.log(error.message)
-    res.status(500).json(error.message)
+  }catch(error){
+    res.status(500).json('Internal Server Error');
   }
 }
 
-export const getProductsByBrand = async function (req: Request, res: Response): Promise<any> {
-  try {
-    const page = Number(req.query.page) || 1;
-    const pageSize = Number(req.query.pageSize) || 20;
+export const getProductsByBrand = async (req: CustomRequest, res: Response): Promise<any> => {
+  try{
     const brandName = req.params.brand;
-    // const userID = req.user?.userID || null;
-
-    let userID = await isAuthorized(req);
-    if (!userID) {
-      userID = null;
-    }
 
     const brand = await brandModel.findOne({
-      where: {
-        name: brandName
-      }
+        where : {
+            name : brandName
+        }
     })
 
-    if (!brand) {
+    if(!brand){
       return res.status(404).json("brand does not exist")
     }
-
-    const count = await models.productModel.count({
-      where: {
-        brandID: brand.dataValues.brandID
-      }
-    });
-
-    const result = await models.productModel.findAll({
-      attributes: [
-        "productID",
-        "title",
-        "subTitle",
-        "price",
-        "discount",
-        //the COALESCE function is used to replace the avgRating value with 0 if it is null.
-        [sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col("ratings.rating")), 0), 'avgRating'],
-        [sequelize.fn('COUNT', sequelize.col("ratings.rating")), 'ratingCount'],
-        [sequelize.literal('(SELECT imgPath FROM images WHERE images.productID = products.productID AND images.position = 1 LIMIT 1)'), 'imgPath'], // to make the response contains the imagePath as an attribute insted of having an attribute of type array containing the imagePath   
-        [sequelize.literal(`(SELECT COUNT(*) FROM wishlist WHERE wishlist.productID = products.productID AND wishlist.userID = ${userID} )`), 'isAddedToWishList'],
-      ],
+    const options = {
       where: {
         brandID: brand.dataValues.brandID
       },
-      include: [
-        {
-          model: models.ratingModel,
-          attributes: [],
-          required: false,
-          as: "ratings",
-        }
-      ],
-      group: ["productID"],
-      offset: (page - 1) * pageSize,
-      limit: pageSize,
-      order: ["productID"],
-      subQuery: false
+      order: ['productID'],
+    };
 
+    const count = await productModel.count({
+      where:options.where
     });
+  
+    const result =await getAllProducts(req, res, options);
     res.json({
-      totalCount: count,
-      products: result
+      totalCount: count, 
+      products: result,
     });
 
-  } catch (error) {
-    console.log(error.message);
-    res.status(500).json('Internal Server Error')
+  }catch(error){
+    res.status(500).json('Internal Server Error');
   }
+  
 }
 
-export const getNewArrivalProducts = async function (req: Request, res: Response): Promise<any> {
+export const getNewArrivalProducts = async function (req: CustomRequest, res: Response): Promise<any> {
   try {
-    const page = Number(req.query.page) || 1;
-    const pageSize = Number(req.query.pageSize) || 20;
-    // const userID = req.user?.userID || null;
-
-    let userID = await isAuthorized(req);
-    if (!userID) {
-      userID = null;
-    }
-
     const threeMonthsAgo = new Date();
     threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-
-    const count = await models.productModel.count({
-      where: {
-        arrivalDate: {
-          [Op.gt]: threeMonthsAgo,
-        },
-      }
-    });
-
-    const result = await models.productModel.findAll({
-      attributes: [
-        "productID",
-        "title",
-        "subTitle",
-        "price",
-        "discount",
-        "arrivalDate",
-        //the COALESCE function is used to replace the avgRating value with 0 if it is null.
-        [sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col("ratings.rating")), 0), 'avgRating'],
-        [sequelize.fn('COUNT', sequelize.col("ratings.rating")), 'ratingCount'],
-        [sequelize.literal('(SELECT imgPath FROM images WHERE images.productID = products.productID AND images.position = 1 LIMIT 1)'), 'imgPath'], // to make the response contains the imagePath as an attribute insted of having an attribute of type array containing the imagePath   
-        [sequelize.literal(`(SELECT COUNT(*) FROM wishlist WHERE wishlist.productID = products.productID AND wishlist.userID = ${userID} )`), 'isAddedToWishList'],
-      ],
+    
+    const options = {
       where: {
         arrivalDate: {
           [Op.gt]: threeMonthsAgo,
         },
       },
-      include: [
-        {
-          model: models.ratingModel,
-          attributes: [],
-          required: false,
-          as: "ratings"
-        }
-      ],
-      group: ["productID"],
-      offset: (page - 1) * pageSize,
-      limit: pageSize,
-      order: [["arrivalDate", "DESC"]],
-      subQuery: false
+      order: [["arrivalDate" , "DESC"]],
+    };
+
+    const count = await productModel.count({
+      where :options.where
     });
 
+    const result =await getAllProducts(req, res, options);
     res.json({
-      totalCount: count,
-      products: result
+      totalCount: count, 
+      products: result,
     });
 
   } catch (error) {
@@ -271,143 +109,102 @@ export const getNewArrivalProducts = async function (req: Request, res: Response
   }
 }
 
-export const getLimitedProducts = async function (req: Request, res: Response): Promise<any> {
+export const getLimitedProducts = async function (req: CustomRequest, res: Response): Promise<any> {
   try {
-    const page = Number(req.query.page) || 1;
-    const pageSize = Number(req.query.pageSize) || 20;
-    // const userID = req.user?.userID || null;
-
-    let userID = await isAuthorized(req);
-    if (!userID) {
-      userID = null;
-    }
-
-    const count = await models.productModel.count({
+    const limited=20;
+    const options = {
       where: {
         quantity: {
-          [Op.lt]: 20,
-        }
-      }
-    });
-
-    const result = await models.productModel.findAll({
-      attributes: [
-        "productID",
-        "title",
-        "subTitle",
-        "price",
-        "discount",
-        "arrivalDate",
-        //the COALESCE function is used to replace the avgRating value with 0 if it is null.
-        [sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col("ratings.rating")), 0), 'avgRating'],
-        [sequelize.fn('COUNT', sequelize.col("ratings.rating")), 'ratingCount'],
-        [sequelize.literal('(SELECT imgPath FROM images WHERE images.productID = products.productID AND images.position = 1 LIMIT 1)'), 'imgPath'], // to make the response contains the imagePath as an attribute insted of having an attribute of type array containing the imagePath   
-        [sequelize.literal(`(SELECT COUNT(*) FROM wishlist WHERE wishlist.productID = products.productID AND wishlist.userID = ${userID} )`), 'isAddedToWishList'],
-      ],
-      where: {
-        quantity: {
-          [Op.lt]: 20,
+          [Op.lt]: limited,
         }
       },
-      include: [
-        {
-          model: models.ratingModel,
-          attributes: [],
-          required: false,
-          as: "ratings"
-        }
-      ],
-      group: ["productID"],
-      offset: (page - 1) * pageSize,
-      limit: pageSize,
-      order: ["productID"],
-      subQuery: false
-    });
+      order: ['productID'],
+    };
 
-    res.status(200).json({
-      totalCount: count,
-      products: result
-    })
+    const count = await productModel.count({
+      where :options.where
+    });
+    
+    const result =await getAllProducts(req, res, options);
+
+    res.json({
+      totalCount: count, 
+      products: result,
+    });
 
   } catch (error) {
     res.status(500).json('Internal Server Error')
   }
 }
 
-export const getProductsByDiscoutOrMore = async function (req: Request, res: Response): Promise<any> {
+export const getProductsByDiscoutOrMore = async function (req: CustomRequest, res: Response): Promise<any> {
   try {
-    const page = Number(req.query.page) || 1;
-    const pageSize = Number(req.query.pageSize) || 20;
-    // const userID = req.user?.userID || null;
-
-    let userID = await isAuthorized(req);
-    if (!userID) {
-      userID = null;
-    }
-
     const discount = Number(req.query.discount) || 15;
 
-    const count = await models.productModel.count({
+    const options = {
       where: {
-        discount: {
-          [Op.gte]: discount,
-        }
-      }
-    });
-
-    const result = await models.productModel.findAll({
-      attributes: [
-        "productID",
-        "title",
-        "subTitle",
-        "price",
-        "discount",
-        "arrivalDate",
-        //the COALESCE function is used to replace the avgRating value with 0 if it is null.
-        [sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col("ratings.rating")), 0), 'avgRating'],
-        [sequelize.fn('COUNT', sequelize.col("ratings.rating")), 'ratingCount'],
-        [sequelize.literal('(SELECT imgPath FROM images WHERE images.productID = products.productID AND images.position = 1 LIMIT 1)'), 'imgPath'], // to make the response contains the imagePath as an attribute insted of having an attribute of type array containing the imagePath   
-        [sequelize.literal(`(SELECT COUNT(*) FROM wishlist WHERE wishlist.productID = products.productID AND wishlist.userID = ${userID} )`), 'isAddedToWishList'],
-      ],
-      where: {
-        discount: {
-          [Op.gte]: discount,
+        discount :{
+          [Op.gte] : discount,
         }
       },
-      include: [
+      order: ['productID'],
+    };
 
-        {
-          model: models.ratingModel,
-          attributes: [],
-          required: false,
-          as: "ratings"
-        }
-      ],
-      group: ["productID"],
-      offset: (page - 1) * pageSize,
-      limit: pageSize,
-      order: ["productID"],
-      subQuery: false
+    const count = await productModel.count({
+      where: options.where
     });
 
-    res.status(200).json({
-      totalCount: count,
-      products: result
-    })
+    const result =await getAllProducts(req, res, options);
+    res.json({
+      totalCount: count, 
+      products: result,
+    });
 
   } catch (error) {
     res.status(500).json('Internal Server Error')
   }
+}
+
+export const getTrendyProducts = async (req: CustomRequest, res: Response): Promise<void> => {
+  try{
+    const options = {
+      order: [[sequelize.literal('avgRating'), 'DESC']],
+      having: sequelize.literal('avgRating >= 4.5'),  // Add HAVING clause for trendy products
+    };
+
+    const productsCount = await productModel.findAll({
+      attributes:[
+        "productID",
+        [sequelize.fn('COUNT', sequelize.col('products.productID')), 'count']],
+      include: [
+        {
+          model: ratingModel,
+          attributes: [],
+        },
+      ],
+      group: ['productID'],
+      having: sequelize.literal('AVG(`ratings`.`rating`) >= 4.5'),
+    });
+
+    const result =await getAllProducts(req, res, options);
+
+    res.status(200).json({
+      totalCount: productsCount.length, 
+      products: result,
+    });
+
+  }catch(error){
+    console.log(error.message)
+    res.status(500).json('Internal Server Error');
+  }
+
 }
 
 export const handPicked = async (req: CustomRequest, res: Response): Promise<any> => {
   try {
-
-    const userID = req.user?.userID || null
     const categoryName = req.query.category as string | undefined;
-    const page = Number(req.query.page) || 1;
-    const pageSize = Number(req.query.pageSize) || 20;
-    const category = await models.categoryModel.findOne({
+
+    const category = await categoryModel.findOne({
       attributes: ['categoryID'],
       where: {
         name: categoryName
@@ -415,43 +212,32 @@ export const handPicked = async (req: CustomRequest, res: Response): Promise<any
     })
     if (!category) { return res.status(404).json('No Products Found'); }
 
-    const handPickedProducts = await models.productModel.findAll({
-      attributes: [
+    const productsCount = await productModel.findAll({
+      attributes:[
         "productID",
-        "title",
-        "subTitle",
         "price",
-        "discount",
-        [sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col("ratings.rating")), 0), 'avgRating'],
-        [sequelize.fn('COUNT', sequelize.col("ratings.rating")), 'ratingCount'],
-        [sequelize.literal('(SELECT imgPath FROM images WHERE images.productID = products.productID AND images.position = 1 LIMIT 1)'), 'imgPath'],
-        [sequelize.literal(`(SELECT COUNT(*) FROM wishlist WHERE wishlist.productID = products.productID AND wishlist.userID = ${userID} )`), 'isAddedToWishList'],
-      ],
+        [sequelize.fn('COUNT', sequelize.col('products.productID')), 'count']],
       include: [
         {
-          model: models.ratingModel,
+          model: ratingModel,
           attributes: [],
-          as: "ratings",
-          required: false
-        }
+        },
       ],
-      where: {
-        price: { [Op.lt]: 100 },
-      },
-      having: sequelize.literal('avgRating >= 4.5'),
       group: ['productID'],
-      offset: (page - 1) * pageSize,
-      limit: pageSize,
-      order: [[sequelize.literal('avgRating'), 'DESC']],
-      subQuery: false
-    })
-    const count = handPickedProducts.length;
+      having: sequelize.literal('AVG(`ratings`.`rating`) >= 4.5 and price <100'),
+    });
 
-    return res.status(200).json(
-      {
-        "totalCount": count,
-        "products": handPickedProducts,
-      })
+    const options = {
+      order: [[sequelize.literal('avgRating'), 'DESC']],
+      having: sequelize.literal('avgRating >= 4.5 and price <100'),  // Add HAVING clause for trendy products
+    };
+
+    const result =await getAllProducts(req, res, options);
+
+    res.status(200).json({
+      totalCount: productsCount.length, 
+      products: result,
+    });
 
   } catch (error) {
     res.status(500).json('Internal Server Error');
@@ -467,7 +253,7 @@ export const getSpecificProduct = async (req: Request, res: Response): Promise<a
       return;
     }
 
-    const Product = await models.productModel.findOne({
+    const Product = await productModel.findOne({
       attributes: [
         "productID",
         "title",
@@ -481,12 +267,12 @@ export const getSpecificProduct = async (req: Request, res: Response): Promise<a
 
       include: [
         {
-          model: models.imageModel,
+          model: imageModel,
           attributes: ['imageID', 'imgPath', 'position'],
           required: false
         },
         {
-          model: models.ratingModel,
+          model: ratingModel,
           attributes: [], as: "ratings",
           required: false
         }
@@ -521,7 +307,7 @@ export const rateProduct = async (req: CustomRequest, res: Response): Promise<an
       return res.status(400).json('Invalid input')
     }
 
-    const existRate = await models.ratingModel.findOne({
+    const existRate = await ratingModel.findOne({
       where: {
         userID: userID,
         productID: productID,
@@ -530,18 +316,18 @@ export const rateProduct = async (req: CustomRequest, res: Response): Promise<an
 
 
     if (!existRate) {
-      const newRating = await models.ratingModel.create({
+      const newRating = await ratingModel.create({
         userID: userID,
         rating: rating,
         productID: productID,
       });
 
 
-      return res.status(200)
+      return res.status(200).json()
     }
     else { //existRate
       if (existRate.rating !== rating) {
-        const updatedRows = await models.ratingModel.update(
+        const updatedRows = await ratingModel.update(
           {
             rating: rating,
           },
@@ -552,7 +338,7 @@ export const rateProduct = async (req: CustomRequest, res: Response): Promise<an
             },
           }
         )
-        return res.status(200)
+        return res.status(200).json()
       }
     }
 
@@ -570,19 +356,19 @@ export const getRateAndReview = async (req: Request, res: Response): Promise<any
     const page = Number(req.query.page) || 1;
     const pageSize = Number(req.query.pageSize) || 5;
 
-    const count = await models.ratingModel.count({
+    const count = await ratingModel.count({
       where: {
         productID: productID,
       },
     });
 
-    const reviews = await models.ratingModel.findAll({
+    const reviews = await ratingModel.findAll({
       attributes: ['rating'],
       where: {
         productID: productID,
       },
       include: [{
-        model: models.userModel,
+        model: userModel,
         attributes: ['firstName', 'lastName'],
 
       }
@@ -607,7 +393,7 @@ export const getRateAndReview = async (req: Request, res: Response): Promise<any
 export const searchProduct = async (req: Request, res: Response): Promise<any> => {
   const searchQuery = req.query.searchQuery
   try {
-    const products = await models.productModel.findAll(
+    const products = await productModel.findAll(
       {
         attributes:
           [
