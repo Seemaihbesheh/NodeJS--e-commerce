@@ -50,7 +50,7 @@ export const toggleWishlistItem = async (userID: number, productID: any) => {
       return 'Removed from wishlist'
     }
 
-    const newWishlist = addToWishList(userID, productID)
+    const newWishlist = await addToWishList(userID, productID)
     return { newWishlist }
 
   } catch (error) {
