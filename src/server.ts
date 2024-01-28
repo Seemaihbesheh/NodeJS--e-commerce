@@ -1,12 +1,14 @@
 import express from 'express'
 import bodyParser from 'body-parser'
 import { syncModels } from './config/db'
-import userRoutes from './controllers/authenticationController'
-import productRoutes from './routes/productRoutes'
-import cartRoutes from './routes/cartRoutes'
-import wishListRoutes from './routes/cartRoutes'
-import orderRoutes from './routes/orderRoutes'
-import profileRoutes from './routes/profileRoutes'
+import authenticationRoutes from './customer/routes/authenticationRoutes'
+import productRoutes from './customer/routes/productRoutes'
+import cartRoutes from './customer/routes/cartRoutes'
+import wishListRoutes from './customer/routes/cartRoutes'
+import orderRoutes from './customer/routes/orderRoutes'
+import profileRoutes from './customer/routes/profileRoutes'
+import adminRoutes from './admin/routes/adminRoutes'
+
 import cors from 'cors'
 
 const app = express()
@@ -15,12 +17,14 @@ app.use(cors())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
-app.use('/', userRoutes)
+app.use('/', authenticationRoutes)
 app.use('/products', productRoutes)
 app.use('/cart', cartRoutes )
 app.use('/wishList', wishListRoutes)
 app.use("/profile", profileRoutes )
 app.use('/orders', orderRoutes)
+
+app.use('/admin', adminRoutes)
 
 syncModels()
   .then(() => {

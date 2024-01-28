@@ -1,8 +1,8 @@
-import { sessionModel, userModel } from '../models/modelsRelations'
+import { sessionModel, userModel } from '../../models/modelsRelations'
 import { NextFunction, Request, Response } from 'express'
 interface CustomRequest extends Request {
   session?: any,
-  user? :any
+  user?: any
 }
 const sessionMiddleware = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
@@ -12,12 +12,12 @@ const sessionMiddleware = async (req: CustomRequest, res: Response, next: NextFu
     }
     const foundSession = await sessionModel.findOne({ where: { sessionID: headersData.authorization } })
     if (foundSession) {
-      const foundUser = await userModel.findOne({where: {userID : foundSession.userID}})
+      const foundUser = await userModel.findOne({ where: { userID: foundSession.userID } })
       req.session = foundSession
       req.user = foundUser
       next()
     } else {
-      return res.status(400).json({error: 'Session not found or timed out. Please log in again.'})
+      return res.status(400).json({ error: 'Session not found or timed out. Please log in again.' })
     }
   } catch (error) {
     next(error)

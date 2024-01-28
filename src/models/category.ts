@@ -19,4 +19,4 @@ const categoryModel = sequelize.define<categoryInstance>('category', {
   tableName: 'category'
 })
 
-export {categoryModel, categoryInstance}
+export { categoryModel, categoryInstance }

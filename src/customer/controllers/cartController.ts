@@ -1,5 +1,5 @@
 import { Response } from 'express'
-import * as cartServices from '../services/cartServices'
+import * as cartServices from '../../services/cartServices'
 import { CustomRequest } from '../middlewares/sessionMiddleware'
 
 export const getCartContent = async function (req: CustomRequest, res: Response): Promise<any> {
@@ -24,7 +24,7 @@ export const updateProductQuantityInCart = async function (req: CustomRequest, r
 
     await cartServices.updateProductQuantityInCart(userID, productID, newQuantity)
 
-    return res.status(200).json('Updated successfully')
+    return res.status(200)
   } catch (error) {
     console.error(error)
     return res.status(error.status).json(error.message)
@@ -42,7 +42,7 @@ export const moveToWishlist = async function (req: CustomRequest, res: Response)
 
     await cartServices.moveToWishlist(userID, productID)
 
-    return res.status(200).json('Moved to Wishlist successfully')
+    return res.status(200)
   } catch (error) {
     console.error(error)
     return res.status(error.status).json(error.message)
@@ -56,7 +56,7 @@ export const deleteProductFromCart = async function (req: CustomRequest, res: Re
 
     await cartServices.deleteProductFromCart(userID, productID)
 
-    return res.status(200).json('Deleted from cart successfully')
+    return res.status(200)
   } catch (error) {
     console.error(error)
     return res.status(error.status).json(error.message)

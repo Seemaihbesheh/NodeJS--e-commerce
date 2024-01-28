@@ -1,9 +1,9 @@
-import { sequelize } from "../config/db"
-import { productModel, imageModel, ratingModel, sessionModel, userModel, categoryModel } from "../models/modelsRelations"
+import { sequelize } from "../../config/db"
+import * as models from "../../models/modelsRelations"
 import { CustomRequest } from "../middlewares/sessionMiddleware"
 import { Request, Response } from 'express'
 import { Op } from 'sequelize'
-import { brandModel } from "../models/brand"
+import { brandModel } from "../../models/brand"
 import FuzzySearch from 'fuzzy-search'
 
 
@@ -12,7 +12,7 @@ export const getTrendyProducts = async function (req: CustomRequest, res: Respon
     const userID = req.user?.userID || null
     const page = Number(req.query.page) || 1
     const pageSize = Number(req.query.pageSize) || 20
-    const trendyProducts = await productModel.findAll({
+    const trendyProducts = await models.productModel.findAll({
       attributes: [
         "productID",
         "title",
@@ -27,7 +27,7 @@ export const getTrendyProducts = async function (req: CustomRequest, res: Respon
       ],
       include: [
         {
-          model: ratingModel,
+          model: models.ratingModel,
           attributes: [],
           as: "ratings",
           required: false
@@ -55,8 +55,8 @@ async function isAuthorized(req: Request): Promise<boolean | number> {
     return false
   }
   else {
-    const foundSession = await sessionModel.findOne({ where: { sessionID: headersData.authorization } })
-    const foundUser = await userModel.findOne({ where: { userID: foundSession.userID } })
+    const foundSession = await models.sessionModel.findOne({ where: { sessionID: headersData.authorization } })
+    const foundUser = await models.userModel.findOne({ where: { userID: foundSession.userID } })
     return foundUser.userID
   }
 }
@@ -75,7 +75,7 @@ export const getProductsByCategory = async function (req: Request, res: Response
 
     console.log(userID);
 
-    const category = await categoryModel.findOne({
+    const category = await models.categoryModel.findOne({
       where: {
         name: categoryName
       }
@@ -85,13 +85,13 @@ export const getProductsByCategory = async function (req: Request, res: Response
       return res.status(404).json("category does not exist")
     }
 
-    const count = await productModel.count({
+    const count = await models.productModel.count({
       where: {
         categoryID: category.dataValues.categoryID
       }
     });
 
-    const result = await productModel.findAll({
+    const result = await models.productModel.findAll({
       attributes: [
         "productID",
         "title",
@@ -102,14 +102,14 @@ export const getProductsByCategory = async function (req: Request, res: Response
         [sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col("ratings.rating")), 0), 'avgRating'],
         [sequelize.fn('COUNT', sequelize.col("ratings.rating")), 'ratingCount'],
         [sequelize.literal('(SELECT imgPath FROM images WHERE images.productID = products.productID AND images.position = 1 LIMIT 1)'), 'imgPath'], // to make the response contains the imagePath as an attribute insted of having an attribute of type array containing the imagePath   
-        [sequelize.literal(`(SELECT COUNT(*) FROM wishlist WHERE wishlist.productID = products.productID AND wishlist.userID = ${userID} )`), 'isAddedToWishList'],
+        [sequelize.literal(`(SELECT COUNT(*) FROM wishList WHERE wishList.productID = products.productID AND wishList.userID = ${userID} )`), 'isAddedToWishList'],
       ],
       where: {
         categoryID: category.dataValues.categoryID
       },
       include: [
         {
-          model: ratingModel,
+          model: models.ratingModel,
           attributes: [],
           as: "ratings",
           required: false
@@ -130,7 +130,7 @@ export const getProductsByCategory = async function (req: Request, res: Response
 
   } catch (error) {
     console.log(error.message)
-    res.status(500).json('Internal Server Error')
+    res.status(500).json(error.message)
   }
 }
 
@@ -156,13 +156,13 @@ export const getProductsByBrand = async function (req: Request, res: Response): 
       return res.status(404).json("brand does not exist")
     }
 
-    const count = await productModel.count({
+    const count = await models.productModel.count({
       where: {
         brandID: brand.dataValues.brandID
       }
     });
 
-    const result = await productModel.findAll({
+    const result = await models.productModel.findAll({
       attributes: [
         "productID",
         "title",
@@ -180,7 +180,7 @@ export const getProductsByBrand = async function (req: Request, res: Response): 
       },
       include: [
         {
-          model: ratingModel,
+          model: models.ratingModel,
           attributes: [],
           required: false,
           as: "ratings",
@@ -218,7 +218,7 @@ export const getNewArrivalProducts = async function (req: Request, res: Response
     const threeMonthsAgo = new Date();
     threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
-    const count = await productModel.count({
+    const count = await models.productModel.count({
       where: {
         arrivalDate: {
           [Op.gt]: threeMonthsAgo,
@@ -226,7 +226,7 @@ export const getNewArrivalProducts = async function (req: Request, res: Response
       }
     });
 
-    const result = await productModel.findAll({
+    const result = await models.productModel.findAll({
       attributes: [
         "productID",
         "title",
@@ -247,7 +247,7 @@ export const getNewArrivalProducts = async function (req: Request, res: Response
       },
       include: [
         {
-          model: ratingModel,
+          model: models.ratingModel,
           attributes: [],
           required: false,
           as: "ratings"
@@ -282,7 +282,7 @@ export const getLimitedProducts = async function (req: Request, res: Response): 
       userID = null;
     }
 
-    const count = await productModel.count({
+    const count = await models.productModel.count({
       where: {
         quantity: {
           [Op.lt]: 20,
@@ -290,7 +290,7 @@ export const getLimitedProducts = async function (req: Request, res: Response): 
       }
     });
 
-    const result = await productModel.findAll({
+    const result = await models.productModel.findAll({
       attributes: [
         "productID",
         "title",
@@ -311,7 +311,7 @@ export const getLimitedProducts = async function (req: Request, res: Response): 
       },
       include: [
         {
-          model: ratingModel,
+          model: models.ratingModel,
           attributes: [],
           required: false,
           as: "ratings"
@@ -347,7 +347,7 @@ export const getProductsByDiscoutOrMore = async function (req: Request, res: Res
 
     const discount = Number(req.query.discount) || 15;
 
-    const count = await productModel.count({
+    const count = await models.productModel.count({
       where: {
         discount: {
           [Op.gte]: discount,
@@ -355,7 +355,7 @@ export const getProductsByDiscoutOrMore = async function (req: Request, res: Res
       }
     });
 
-    const result = await productModel.findAll({
+    const result = await models.productModel.findAll({
       attributes: [
         "productID",
         "title",
@@ -377,7 +377,7 @@ export const getProductsByDiscoutOrMore = async function (req: Request, res: Res
       include: [
 
         {
-          model: ratingModel,
+          model: models.ratingModel,
           attributes: [],
           required: false,
           as: "ratings"
@@ -407,7 +407,7 @@ export const handPicked = async (req: CustomRequest, res: Response): Promise<any
     const categoryName = req.query.category as string | undefined;
     const page = Number(req.query.page) || 1;
     const pageSize = Number(req.query.pageSize) || 20;
-    const category = await categoryModel.findOne({
+    const category = await models.categoryModel.findOne({
       attributes: ['categoryID'],
       where: {
         name: categoryName
@@ -415,7 +415,7 @@ export const handPicked = async (req: CustomRequest, res: Response): Promise<any
     })
     if (!category) { return res.status(404).json('No Products Found'); }
 
-    const handPickedProducts = await productModel.findAll({
+    const handPickedProducts = await models.productModel.findAll({
       attributes: [
         "productID",
         "title",
@@ -429,7 +429,7 @@ export const handPicked = async (req: CustomRequest, res: Response): Promise<any
       ],
       include: [
         {
-          model: ratingModel,
+          model: models.ratingModel,
           attributes: [],
           as: "ratings",
           required: false
@@ -467,7 +467,7 @@ export const getSpecificProduct = async (req: Request, res: Response): Promise<a
       return;
     }
 
-    const Product = await productModel.findOne({
+    const Product = await models.productModel.findOne({
       attributes: [
         "productID",
         "title",
@@ -481,12 +481,12 @@ export const getSpecificProduct = async (req: Request, res: Response): Promise<a
 
       include: [
         {
-          model: imageModel,
+          model: models.imageModel,
           attributes: ['imageID', 'imgPath', 'position'],
           required: false
         },
         {
-          model: ratingModel,
+          model: models.ratingModel,
           attributes: [], as: "ratings",
           required: false
         }
@@ -512,16 +512,16 @@ export const getSpecificProduct = async (req: Request, res: Response): Promise<a
 export const rateProduct = async (req: CustomRequest, res: Response): Promise<any> => {
   try {
 
-    const rate = req.body.rating;
+    const rating = req.body.rating;
     const productID = req.params.productID;
     const userID = req.user.userID;
 
     // Validate input
-    if (!userID || !rate || !productID) {
-      return res.status(400).json({ error: 'Invalid input' });
+    if (!userID || !rating || !productID) {
+      return res.status(400).json('Invalid input')
     }
 
-    const existRate = await ratingModel.findOne({
+    const existRate = await models.ratingModel.findOne({
       where: {
         userID: userID,
         productID: productID,
@@ -530,24 +530,35 @@ export const rateProduct = async (req: CustomRequest, res: Response): Promise<an
 
 
     if (!existRate) {
-      const newRating = await ratingModel.create({
+      const newRating = await models.ratingModel.create({
         userID: userID,
-        rating: rate,
+        rating: rating,
         productID: productID,
       });
 
 
-      return res.status(200).json(
-        "Rated Successfully",
-      );
+      return res.status(200)
     }
-    else {
-      return res.status(400).json('Already Rated');
+    else { //existRate
+      if (existRate.rating !== rating) {
+        const updatedRows = await models.ratingModel.update(
+          {
+            rating: rating,
+          },
+          {
+            where: {
+              userID: userID,
+              productID: productID,
+            },
+          }
+        )
+        return res.status(200)
+      }
     }
 
   } catch (error) {
 
-    return res.status(500).json('Internal Server Error');
+    return res.status(500).json('Internal Server Error')
   }
 }
 
@@ -559,19 +570,19 @@ export const getRateAndReview = async (req: Request, res: Response): Promise<any
     const page = Number(req.query.page) || 1;
     const pageSize = Number(req.query.pageSize) || 5;
 
-    const count = await ratingModel.count({
+    const count = await models.ratingModel.count({
       where: {
         productID: productID,
       },
     });
 
-    const reviews = await ratingModel.findAll({
+    const reviews = await models.ratingModel.findAll({
       attributes: ['rating'],
       where: {
         productID: productID,
       },
       include: [{
-        model: userModel,
+        model: models.userModel,
         attributes: ['firstName', 'lastName'],
 
       }
@@ -596,7 +607,7 @@ export const getRateAndReview = async (req: Request, res: Response): Promise<any
 export const searchProduct = async (req: Request, res: Response): Promise<any> => {
   const searchQuery = req.query.searchQuery
   try {
-    const products = await productModel.findAll(
+    const products = await models.productModel.findAll(
       {
         attributes:
           [
@@ -604,6 +615,7 @@ export const searchProduct = async (req: Request, res: Response): Promise<any> =
             "subTitle",
             [sequelize.literal('(SELECT name FROM brand WHERE brand.brandID = products.brandID )'), 'brandName'],
           ],
+        limit: 10
       }
     )
     const searcher = new FuzzySearch(products, ['title', 'subTitle', 'brandName'], {

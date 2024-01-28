@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express'
+import express from 'express'
 import * as cartController from '../controllers/cartController'
 import { sessionMiddleware } from '../middlewares/sessionMiddleware'
 const router = express.Router()
