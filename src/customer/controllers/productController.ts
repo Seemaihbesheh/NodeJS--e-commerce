@@ -6,11 +6,16 @@ import { Op } from 'sequelize'
 import { brandModel } from "../../models/brand"
 import FuzzySearch from 'fuzzy-search'
 import { getAllProducts } from "../../services/productServices"
+import { ratingValidationSchema } from '../../validators/validateSchema'
 
 
 export const getProductsByCategory = async (req: CustomRequest, res: Response): Promise<any> => {
   try{
     const categoryName = req.params.category;
+
+    if(!categoryName){
+      return res.status(400).json("Invalid Input")
+    }
     const category = await categoryModel.findOne({
           where: {
               name: categoryName
@@ -47,6 +52,9 @@ export const getProductsByBrand = async (req: CustomRequest, res: Response): Pro
   try{
     const brandName = req.params.brand;
 
+    if(!brandName){
+      return res.status(400).json("Invalid Input")
+    }
     const brand = await brandModel.findOne({
         where : {
             name : brandName
@@ -111,6 +119,7 @@ export const getNewArrivalProducts = async function (req: CustomRequest, res: Re
 
 export const getLimitedProducts = async function (req: CustomRequest, res: Response): Promise<any> {
   try {
+
     const limited=20;
     const options = {
       where: {
@@ -167,6 +176,8 @@ export const getProductsByDiscoutOrMore = async function (req: CustomRequest, re
 
 export const getTrendyProducts = async (req: CustomRequest, res: Response): Promise<void> => {
   try{
+
+
     const options = {
       order: [[sequelize.literal('avgRating'), 'DESC']],
       having: sequelize.literal('avgRating >= 4.5'),  // Add HAVING clause for trendy products
@@ -204,13 +215,20 @@ export const handPicked = async (req: CustomRequest, res: Response): Promise<any
   try {
     const categoryName = req.query.category as string | undefined;
 
+    if (!categoryName) { 
+      return res.status(404).json('Inalid Input');
+     }
+
+
     const category = await categoryModel.findOne({
       attributes: ['categoryID'],
       where: {
         name: categoryName
       }
     })
-    if (!category) { return res.status(404).json('No Products Found'); }
+    if (!category) { 
+      return res.status(404).json('No Products Found');
+     }
 
     const productsCount = await productModel.findAll({
       attributes:[
@@ -249,8 +267,8 @@ export const getSpecificProduct = async (req: Request, res: Response): Promise<a
     const productID = req.query.productID as string | undefined;
 
     if (!productID) {
-      res.status(400).json({ error: 'productid are required' });
-      return;
+      return  res.status(400).json({ error: 'productid are required' });
+    
     }
 
     const Product = await productModel.findOne({
@@ -302,10 +320,22 @@ export const rateProduct = async (req: CustomRequest, res: Response): Promise<an
     const productID = req.params.productID;
     const userID = req.user.userID;
 
-    // Validate input
-    if (!userID || !rating || !productID) {
-      return res.status(400).json('Invalid input')
+   //validate
+   const validationResult = ratingValidationSchema.validate({ userID, productID, rating });
+   if (validationResult.error) {
+     return res.status(400).json("Invalid Input");
+   }
+
+    const existProduct = await productModel.findOne({
+      where: {
+        productID: productID,
+      },
+    });
+
+    if (!existProduct) {
+      return res.status(404).json('Product Not Found');
     }
+
 
     const existRate = await ratingModel.findOne({
       where: {
@@ -340,6 +370,9 @@ export const rateProduct = async (req: CustomRequest, res: Response): Promise<an
         )
         return res.status(200).json()
       }
+      else { 
+        return res.status(200).json();
+      }
     }
 
   } catch (error) {
@@ -355,6 +388,11 @@ export const getRateAndReview = async (req: Request, res: Response): Promise<any
 
     const page = Number(req.query.page) || 1;
     const pageSize = Number(req.query.pageSize) || 5;
+
+     // Validating the request body against the schema
+     if (!productID) {
+      return res.status(400).json("Invalid Input");
+    }
 
     const count = await ratingModel.count({
       where: {

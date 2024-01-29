@@ -6,6 +6,8 @@ export const wishListValidationSchema = Joi.object({
     productID: Joi.number().integer().positive().required(),
 }).options({ abortEarly: false, stripUnknown: true });
 
+
+
 export const addressValidationSchema = Joi.object({
     userID: Joi.number().integer().positive(),
     street: Joi.string().trim().required(),
@@ -24,8 +26,8 @@ export const brandValidationSchema = Joi.object({
 export const cartValidationSchema = Joi.object({
     userID: Joi.number().integer().positive().required(),
     productID: Joi.number().integer().positive().required(),
-    productQuantity: Joi.number().integer().min(1).required(),
-    isOrdered: Joi.boolean().required(),
+    productQuantity: Joi.number().integer().min(1),
+    isOrdered: Joi.boolean(),
 }).options({ abortEarly: false, stripUnknown: true });
 
 
@@ -46,17 +48,20 @@ export const categoryValidationSchema = Joi.object({
 
 // Joi schema for validation
 export const orderValidationSchema = Joi.object({
-    userID: Joi.number().integer().positive().required(),
-    fullName: Joi.string().trim().min(2).max(255).required(),
-    email: Joi.string().trim().email().required(),
-    mobile: Joi.string().trim().pattern(/^\d{10}$/).required(),
-    addressID: Joi.number().integer().positive().required(),
-    state: Joi.string().trim().min(2).max(255).required(),
-    isPaid: Joi.boolean().required(),
-    date: Joi.date().iso().required(),
-    paymentMethod: Joi.string().trim().min(2).max(255).required(),
-    grandTotal: Joi.number().precision(2).positive().required(),
-    displayID: Joi.number().integer().positive().required(),
+  userID: Joi.number().integer().required(),
+  fullName: Joi.string().required(),
+  email: Joi.string().email().required(),
+  mobile: Joi.string().required(),
+  street: Joi.string().trim().required(),
+  state: Joi.string().trim().required(),
+  city: Joi.string().trim().required(),
+  pinCode: Joi.string().required(),
+  status: Joi.string().trim().required(),
+  isPaid: Joi.boolean().required(),
+  date: Joi.date().iso().required(),
+  paymentMethod: Joi.string().required(),
+  grandTotal: Joi.number().required(),
+  displayID: Joi.number().integer().required(),
 }).options({ abortEarly: false, stripUnknown: true });
 
 
@@ -89,7 +94,7 @@ export const productValidationSchema = Joi.object({
 
 // Joi schema for validation
 export const ratingValidationSchema = Joi.object({
-    
+
     userID: Joi.number().integer().positive().required(),
     rating: Joi.number().precision(2).min(0).max(5).required(), // Assuming ratings are between 0 and 5
     productID: Joi.number().integer().positive().required(),

@@ -2,12 +2,9 @@ import { Request, Response } from 'express'
 import { CustomRequest } from "../middlewares/sessionMiddleware";
 import * as models from '../../models/modelsRelations'
 import * as userServices from '../../services/userServices'
+import {MulterRequest} from "../middlewares/multerMiddleware"
 
-interface MulterRequest extends Request, CustomRequest {
-  file: {
-    buffer: Buffer;
-  };
-}
+
 
 export const getMyRatingsAndReviews = async function (req: CustomRequest, res: Response): Promise<any> {
   try {
@@ -64,22 +61,33 @@ export const updateUserProfile = async function (req: CustomRequest, res: Respon
 export const uploadPhoto = async (req: MulterRequest, res: Response): Promise<any> => {
   try {
     const userID = req.user.userID;
-    if (!userID) {
-      return res.status(400).json('Invalid input');
-    }
+
     const fileBuffer = req.file?.buffer;
     console.log('New Image:', fileBuffer);
 
     if (!fileBuffer) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
-    // return res.status(200).json(fileBuffer);
     const updatedUser = await userServices.updateUserProfile(userID, { image: fileBuffer })
+    /*
+    const  updatedUser = await models.userModel.update(
+      { image: fileBuffer },
+      {
+        where: { userID: userID },
+        returning: true,
+      }
+    );
 
+    const user= await models.userModel.findOne({
+        where: { userID: userID }
+    })
+
+    */
     if (!updatedUser) {
       return res.status(400).json("Uploaded Failed");
     }
     return res.status(200).json(updatedUser.image);
+   // return res.status(200).json(user.image);
 
   } catch (error) {
     console.error('Error in uploadPhoto:', error)
@@ -91,10 +99,7 @@ export const deletePhoto = async (req: CustomRequest, res: Response) => {
   try {
 
     const userID = req.user.userID
-    if (!userID) {
-      return res.status(404).json({ error: 'User Not found ' })
-    }
-
+   
     const existPhoto = await models.userModel.findOne({
       where: { userID: userID },
       attributes: ['image'],
@@ -104,12 +109,19 @@ export const deletePhoto = async (req: CustomRequest, res: Response) => {
       return res.status(400).json('User image not found or does not exist.')
     }
 
-    const deletePhoto = await userServices.updateUserProfile(userID, { image: null })
+    //const deletePhoto = await userServices.updateUserProfile(userID, { image: null })
+    const deletePhoto = await models.userModel.update(
+      { image: null },
+      {
+        where: { userID: userID },
+        returning: true,
+      }
+    );
 
     if (!deletePhoto) {
       return res.status(404).json(' Failed Delete Photo')
     }
-    return res.status(200)
+    return res.status(200).json()
 
   } catch (error) {
     res.status(500).json('Failed to Delete Photo')

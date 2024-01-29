@@ -8,11 +8,10 @@ import wishListRoutes from './customer/routes/wishListRoutes'
 import orderRoutes from './customer/routes/orderRoutes'
 import profileRoutes from './customer/routes/profileRoutes'
 import adminRoutes from './admin/routes/adminRoutes'
+import {fillTables} from './utils/seedsFaker'
 
 import cors from 'cors'
-
-import {fillTables} from './models/seedsFaker'
-//fillTables();
+//fillTables()
 
 const app = express()
 app.use(cors())

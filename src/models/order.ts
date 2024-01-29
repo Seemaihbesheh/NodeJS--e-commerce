@@ -11,7 +11,7 @@ interface orderInstance extends Model {
   addressID: number,
   isPaid: boolean,
   street: string,
-  state: string,
+  state: string,//status
   city: string,
   pinCode: string,
   status: string,
