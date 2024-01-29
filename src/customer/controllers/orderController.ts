@@ -77,7 +77,7 @@ export const placeOrder = async function (req: CustomRequest, res: Response): Pr
 
     const { fullName, mobile, paymentMethod } = req.body
 
-    if(!fullName||mobile||paymentMethod){
+    if(!fullName||!mobile||!paymentMethod){
       return res.status(400).json("Invalid Input");
     }
 
