@@ -1,7 +1,7 @@
 import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
 import Joi from "joi";
-import validateData from '../validators/validateSchema';
+
 interface orderItemInstance extends Model {
   orderItemID: number,
   orderID: number,
@@ -51,18 +51,6 @@ const orderItemModel = sequelize.define<orderItemInstance>('orderItems', {
   tableName: 'orderitems'
 })
 
-// Joi schema for validation
-const orderItemValidationSchema = Joi.object({
-  orderID: Joi.number().integer().positive().required(),
-  productID: Joi.number().integer().positive().required(),
-  productQuantity: Joi.number().integer().min(1).required(),
-  productPrice: Joi.number().precision(2).positive().required(),
-  productTitle: Joi.string().trim().min(3).max(255).required(),
-  productSubtitle: Joi.string().trim().min(3).max(255).required(),
-  productDiscount: Joi.number().integer().min(0).max(100).required(),
-}).options({ abortEarly: false, stripUnknown: true });
 
-// Validate data before creating/updating records
-orderItemModel.beforeCreate(validateData(orderItemModel, orderItemValidationSchema));
-orderItemModel.beforeUpdate(validateData(orderItemModel, orderItemValidationSchema));
+
 export { orderItemModel, orderItemInstance };

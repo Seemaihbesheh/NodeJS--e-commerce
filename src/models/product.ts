@@ -1,7 +1,7 @@
 import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
 import Joi from "joi";
-import validateData from '../validators/validateSchema';
+
 interface productInstance extends Model {
     productID: number,
     title: string,
@@ -54,33 +54,13 @@ const productModel = sequelize.define<productInstance>('products', {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    image: {
-      type: DataTypes.STRING, // Change to DataTypes.BLOB for binary storage
-      allowNull: true,
-  },
+
 
   }, {
     timestamps: false,
     tableName: 'products'
   })
   
-// Joi schema for validation
-const productValidationSchema = Joi.object({
-  title: Joi.string().trim().min(3).max(255).required(),
-  subTitle: Joi.string().trim().min(3).max(255).allow(null),
-  description: Joi.string().trim().allow(null),
-  price: Joi.number().precision(2).positive().required(),
-  quantity: Joi.number().integer().positive().required(),
-  categoryID: Joi.number().integer().positive().required(),
-  discount: Joi.number().precision(2).min(0).max(100).required(),
-  arrivalDate: Joi.date().iso().allow(null),
-  brandID: Joi.number().integer().positive().required(),
-  image: Joi.string().uri().allow(null),
-}).options({ abortEarly: false, stripUnknown: true });
 
-// Validate data before creating/updating records
-
-productModel.beforeCreate(validateData(productModel, productValidationSchema));
-productModel.beforeUpdate(validateData(productModel, productValidationSchema));
 
 export { productModel, productInstance };

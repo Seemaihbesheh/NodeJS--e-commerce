@@ -6,7 +6,7 @@ import { Op } from 'sequelize'
 import { brandModel } from "../../models/brand"
 import FuzzySearch from 'fuzzy-search'
 
-
+import { ratingValidationSchema } from '../../validators/validateSchema'
 export const getTrendyProducts = async function (req: CustomRequest, res: Response): Promise<any> {
   try {
     const userID = req.user?.userID || null
@@ -407,6 +407,10 @@ export const handPicked = async (req: CustomRequest, res: Response): Promise<any
     const categoryName = req.query.category as string | undefined;
     const page = Number(req.query.page) || 1;
     const pageSize = Number(req.query.pageSize) || 20;
+//validate
+    if(!userID ||categoryName){
+      return res.status(400).json("Invalid Input");
+    }
     const category = await categoryModel.findOne({
       attributes: ['categoryID'],
       where: {
@@ -461,10 +465,10 @@ export const handPicked = async (req: CustomRequest, res: Response): Promise<any
 export const getSpecificProduct = async (req: Request, res: Response): Promise<any> => {
   try {
     const productID = req.query.productID as string | undefined;
-
+//validate
     if (!productID) {
-      res.status(400).json({ error: 'productid are required' });
-      return;
+      return res.status(400).json('Invalid Input');
+    
     }
 
     const Product = await productModel.findOne({
@@ -509,19 +513,20 @@ export const getSpecificProduct = async (req: Request, res: Response): Promise<a
 
 }
 
+
+
 export const rateProduct = async (req: CustomRequest, res: Response): Promise<any> => {
   try {
     const rating = req.body.rating;
     const productID = req.params.productID;
     const userID = req.user.userID;
 
-    // Validate input
-    if (!userID || !productID) {
-      return res.status(400).json('Invalid input');
+    //validate
+    const validationResult = ratingValidationSchema.validate({ userID, productID, rating });
+    if (validationResult.error) {
+      return res.status(400).json("Invalid Input");
     }
-    if (!rating || isNaN(rating)) {
-      return res.status(400).json('Invalid input');
-    }
+
     const existProduct = await productModel.findOne({
       where: {
         productID: productID,
@@ -569,8 +574,9 @@ export const rateProduct = async (req: CustomRequest, res: Response): Promise<an
         return res.status(200).json("Update Rating Successfully");
       }
 
-
-     
+      else { //SEEMA
+        return res.status(200).json("Already Update Rating ");
+      }
     }
 
 
@@ -587,6 +593,11 @@ export const getRateAndReview = async (req: Request, res: Response): Promise<any
 
     const page = Number(req.query.page) || 1;
     const pageSize = Number(req.query.pageSize) || 5;
+
+    // Validating the request body against the schema
+    if (!productID) {
+      return res.status(400).json("Invalid Input");
+    }
 
     const count = await ratingModel.count({
       where: {
@@ -609,6 +620,7 @@ export const getRateAndReview = async (req: Request, res: Response): Promise<any
       order: [["rating", "DESC"]],
     });
 
+    
     return res.status(200).json(
       {
         "totalCount": count,

@@ -3,6 +3,7 @@ import * as orderSevices from '../../services/orderServices'
 import {   orderModel} from '../../models/modelsRelations'
 import { CustomRequest } from '../middlewares/sessionMiddleware'
 
+import {orderValidationSchema} from '../../validators/validateSchema'
 export const getSpecificOrder = async function (req: Request, res: Response): Promise<any> {
     try {
         const orderID = Number(req.query.orderID)
@@ -26,6 +27,9 @@ export const getOrders =async (req: CustomRequest, res: Response): Promise<any> 
         return res.status(400).json('Invalid Input')
       }
     
+
+
+      
       const orders = await orderModel.findAll({
         attributes:['displayID','date','grandTotal','isPaid'],
         where: {

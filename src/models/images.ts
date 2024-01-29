@@ -1,7 +1,7 @@
 import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
 import Joi from "joi";
-import validateData from '../validators/validateSchema';
+
 
 interface imageInstance extends Model {
   imageID: number,
@@ -32,16 +32,7 @@ const imageModel = sequelize.define<imageInstance>('images', {
     tableName: 'images'
   })
   
-// Joi schema for validation
-const imageValidationSchema = Joi.object({
-  productID: Joi.number().integer().positive().required(),
-  imgPath: Joi.string().trim().min(3).max(255).required(),
-  position: Joi.number().integer().positive().required(),
-}).options({ abortEarly: false, stripUnknown: true });
 
-// Validate data before creating/updating records
 
-imageModel.beforeCreate(validateData(imageModel, imageValidationSchema));
-imageModel.beforeUpdate(validateData(imageModel, imageValidationSchema));
 
 export { imageModel, imageInstance };

@@ -20,7 +20,7 @@ async function syncModels() {
     await sequelize.authenticate()
     console.log('Connection has been established successfully.')
     // {force: true}
-    await sequelize.sync( {force: true})
+    await sequelize.sync()
 
   } catch (error) {
     console.error('Unable to connect to the database:', error)

@@ -5,27 +5,17 @@ import { ratingModel } from "../../models/rating";
 import { productModel } from "../../models/product";
 import { imageModel } from "../../models/images";
 import { userModel } from "../../models/user";
+import {MulterRequest} from "../middlewares/multerMiddleware"
 
-
-
-
-
-interface MulterRequest extends Request,CustomRequest {
-    file: {
-      buffer: Buffer;
-    };
-  }
-  
   export const uploadPhoto = async (req: MulterRequest, res: Response): Promise<any> => {
     try {
-     // const newImage = req.file.filename;
+  
       const userID = req.user.userID;
       if (!userID ) {
         return res.status(400).json( 'Invalid input' );
       }
      const fileBuffer = req.file?.buffer;
-    console.log('New Image:', fileBuffer);
-    
+
       if (!fileBuffer) {
         return res.status(400).json({ error: 'No file uploaded' });
       }

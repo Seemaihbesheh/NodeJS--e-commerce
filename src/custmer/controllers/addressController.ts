@@ -2,8 +2,8 @@
 import { addressModel, userModel } from '../../models/modelsRelations'
 import { Request, Response } from 'express'
 import { CustomRequest } from '../middlewares/sessionMiddleware'
-
 import { sequelize } from "../../config/db"
+
 export const getAddress = async (req: CustomRequest, res: Response): Promise<any> => {
 
   try {
