@@ -95,3 +95,4 @@ export const ratingValidationSchema = Joi.object({
     productID: Joi.number().integer().positive().required(),
 
 }).options({ abortEarly: false, stripUnknown: true });
+

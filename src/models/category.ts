@@ -1,7 +1,5 @@
 import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
-import Joi from "joi";
-
 
 interface categoryInstance extends Model {
   categoryID: number,
@@ -22,6 +20,5 @@ const categoryModel = sequelize.define<categoryInstance>('category', {
   tableName: 'category'
 })
 
+export { categoryModel, categoryInstance }
 
-
-export { categoryModel, categoryInstance };

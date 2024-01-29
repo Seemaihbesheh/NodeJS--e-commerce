@@ -2,6 +2,7 @@ import * as models from "../models/modelsRelations"
 import * as wishListServices from './wishlistServices'
 import * as productServices from './productServices'
 import { CustomError } from './customError'
+import { sequelize } from "../config/db"
 
 export const getCartContent = async function (userID: number): Promise<any> {
   try {
@@ -27,45 +28,39 @@ export const getCartContent = async function (userID: number): Promise<any> {
       ],
     })
   } catch (error) {
-    error.status = 500
-    error.message = 'Internal Server Error'
-    throw error
+    throw new CustomError('Internal Server Error', 500)
   }
 }
 
 export const updateProductQuantityInCart = async function (userID: number, productID: number, newQuantity: number): Promise<any> {
   try {
     const product = await productServices.getProduct(productID)
-
     if (!product) {
       throw new CustomError('Product does not exist', 404)
-    }
 
+    }
     if (product.quantity < newQuantity) {
-      throw new CustomError('No enough quantity', 404)
+      throw new CustomError('No enough quantity', 400)
     }
 
-    const cartProduct = await models.cartModel.findOne({
-      where: {
-        userID: userID,
-        productID: productID,
-        isOrdered: 0,
-      },
-    })
+    const cartProduct = await findCartProduct(userID, productID)
+    return await updateProductInCart(cartProduct.productID, userID, { productQuantity: newQuantity })
 
-    if (cartProduct) {
-      return await updateProduct(cartProduct.productID, userID, newQuantity)
-    } else {
-      throw new CustomError('Product not found in the user\'s cart.', 404)
-    }
   } catch (error) {
-    throw error
+
+    if (error instanceof CustomError) {
+      throw error
+    } else {
+      throw new CustomError('Internal Server Error', 500)
+    }
   }
 }
 
 export const moveToWishlist = async function (userID: number, productID: number): Promise<any> {
+  const transaction = await sequelize.transaction()
+
   try {
-    const productInCart = await models.cartModel.findOne({ where: { userID: userID, productID: productID } })
+    const productInCart = await findCartProduct(userID, productID)
 
     if (productInCart) {
       const isProductInWishlist = await wishListServices.isAdedToWishList(userID, productID)
@@ -74,19 +69,21 @@ export const moveToWishlist = async function (userID: number, productID: number)
         throw new CustomError('Product Already in the wishList', 404)
       }
 
-      const removedFromCart = await models.cartModel.destroy({ where: { userID: userID, productID: productID } })
+      await models.cartModel.destroy({ where: { userID: userID, productID: productID }, transaction: transaction })
 
-      if (removedFromCart) {
-        return await models.wishListModel.create({
-          userID: userID,
-          productID: productID,
-        })
-      }
+
+      await wishListServices.addToWishList(userID, productID, transaction)
+
+      await transaction.commit()
     }
     throw new CustomError('Product not Added To the Cart', 404)
   } catch (error) {
-    console.log
-    throw error
+    await transaction.rollback()
+    if (error instanceof CustomError) {
+      throw error
+    } else {
+      throw new CustomError('Internal Server Error', 500);
+    }
   }
 }
 
@@ -108,7 +105,11 @@ export const deleteProductFromCart = async function (userID: number, productID: 
 
     return 'Deleted successfully'
   } catch (error) {
-    throw error
+    if (error instanceof CustomError) {
+      throw error
+    } else {
+      throw new CustomError('Internal Server Error', 500);
+    }
   }
 }
 
@@ -117,22 +118,20 @@ export const addToCart = async function (userID: number, productID: number, prod
     const product = await productServices.getProduct(productID)
 
     if (!product) {
-      throw new Error('Product does not exist')
+      throw new CustomError('Product does not exist', 404)
     }
 
     if (product.quantity < productQuantity) {
-      throw new Error('Not enough quantity')
+      throw new CustomError('Not enough quantity',400)
     }
 
-    const productExist = await models.cartModel.findOne({
-      where: {
-        productID: productID,
-        userID: userID,
-      },
-    })
+    const productExist = await findCartProduct(userID, productID)
 
     if (productExist) {
-      return await updateProduct(productExist.productID, userID, productExist.productQuantity + productQuantity)
+      const updateData = {
+        productQuantity: productExist.productQuantity + productQuantity
+    }
+      return await updateProductInCart(productExist.productID, userID, updateData)
     } else {
       const newCart = {
         userID: userID,
@@ -142,23 +141,50 @@ export const addToCart = async function (userID: number, productID: number, prod
       }
 
       const result = await models.cartModel.create(newCart)
-      return 'Successfully added to cart'
+      return result
     }
   } catch (error) {
-    throw error
+    if (error instanceof CustomError) {
+      throw error
+    } else {
+      throw new CustomError('Internal Server Error', 500)
+    }
   }
 }
 
-async function updateProduct(cartProductID: number, userID: number, newQuantity: number) {
+export const updateProductInCart = async function updateProductInCart(cartProductID: number, userID: number, updateData: { productQuantity?: number, isOrdered?: boolean }, transaction?: any) {
   try {
-    return await models.cartModel.update({ productQuantity: newQuantity },
+    const [updatedRowsCount] = await models.cartModel.update(updateData,
       {
         where: {
           productID: cartProductID,
           userID: userID,
-        },
+        }, transaction: transaction
       })
+    if (updatedRowsCount === 0) {
+      throw new CustomError('product cannot be updated', 400)
+    }
+
+    const updatedProduct = await productServices.getProduct(cartProductID)
+
+    return (updatedProduct)
+
   } catch (error) {
     throw new CustomError('Internal Server Error', 500)
+  }
+}
+
+export const findCartProduct = async function (userID: number, productID: number): Promise<any> {
+  try {
+    return await models.cartModel.findOne({
+      where: {
+        userID: userID,
+        productID: productID,
+        isOrdered: 0,
+      },
+    })
+  }
+  catch (error) {
+    throw new CustomError('Product not found in the user\'s cart.', 404)
   }
 }

@@ -1,8 +1,10 @@
 import * as models from "../models/modelsRelations"
+import { CustomError } from './customError'
 
 export const getWishListItems = async function getWishListItems(userID: number): Promise<any> {
   try {
-    return await models.wishListModel.findAll({
+
+    const wishList = await models.wishListModel.findAll({
       attributes: [],
       include: [{
         model: models.productModel,
@@ -12,8 +14,19 @@ export const getWishListItems = async function getWishListItems(userID: number):
         userID: userID,
       }
     })
+    if (wishList.length > 0) {
+      return (wishList)
+    } else {
+      throw new CustomError('No wishList Found for user', 404)
+
+    }
+
   } catch (error) {
-    throw new Error('Internal Server Error')
+    if (error instanceof CustomError) {
+      throw error
+    } else {
+      throw new CustomError('Internal Server Error', 500)
+    }
   }
 }
 
@@ -37,14 +50,24 @@ export const toggleWishlistItem = async (userID: number, productID: any) => {
       return 'Removed from wishlist'
     }
 
-    const newWishlist = await models.wishListModel.create({
-      userID: userID,
-      productID: productID,
-    })
-
+    const newWishlist = await addToWishList(userID, productID)
     return { newWishlist }
 
   } catch (error) {
-    throw new Error('Internal Server Error')
+    throw new CustomError('Internal Server Error', 500)
+  }
+}
+
+export const addToWishList = async function (userID: number, productID: number, transaction?: any) {
+  try {
+    const newWishlist = await models.wishListModel.create({
+      userID: userID,
+      productID: productID,
+    }, { transaction })
+
+    return newWishlist
+
+  } catch (error) {
+    throw new CustomError('Internal Server Error', 500)
   }
 }

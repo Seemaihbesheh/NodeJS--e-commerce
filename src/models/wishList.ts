@@ -8,23 +8,22 @@ interface wishListInstance extends Model {
   productID: number
 }
 const wishListModel = sequelize.define<wishListInstance>('wishList', {
-    wishlistID: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    userID: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    productID: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-  }, {
-    timestamps: false,
-    tableName: 'wishList'
-  })
+  wishlistID: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  userID: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  productID: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+}, {
+  timestamps: false,
+  tableName: 'wishList'
+})
 
-
- export {wishListModel, wishListInstance}
+export { wishListModel, wishListInstance }

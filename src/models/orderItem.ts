@@ -8,9 +8,10 @@ interface orderItemInstance extends Model {
   productID: number,
   productQuantity: number,
   productPrice: number,
-  productTitle: string;
-  productSubtitle: string;
-  productDiscount: number;
+  productTitle: string,
+  productSubtitle: string,
+  productDiscount: string,
+  subTotal: number
 }
 const orderItemModel = sequelize.define<orderItemInstance>('orderItems', {
   orderItemID: {
@@ -33,11 +34,11 @@ const orderItemModel = sequelize.define<orderItemInstance>('orderItems', {
   productPrice: {
     type: DataTypes.FLOAT,
     allowNull: false,
-  }, 
+  },
   productTitle: {
     type: DataTypes.STRING,
     allowNull: false,
-  }, 
+  },
   productSubtitle: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -46,6 +47,9 @@ const orderItemModel = sequelize.define<orderItemInstance>('orderItems', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  subTotal: {
+    type: DataTypes.FLOAT
+  }
 }, {
   timestamps: false,
   tableName: 'orderitems'

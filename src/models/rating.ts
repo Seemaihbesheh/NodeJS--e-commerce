@@ -10,29 +10,27 @@ interface ratingInstance extends Model {
 
 }
 const ratingModel = sequelize.define<ratingInstance>('ratings', {
-    ratingID: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    userID: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    rating: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-    },
-    productID: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-  }, {
-    timestamps: false,
-    tableName: 'ratings'
-  })
-  
+  ratingID: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  userID: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  rating: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+  },
+  productID: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+}, {
+  timestamps: false,
+  tableName: 'ratings'
+})
 
+export { ratingModel, ratingInstance }
 
-
-export { ratingModel, ratingInstance };

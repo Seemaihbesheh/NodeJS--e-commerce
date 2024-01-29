@@ -11,34 +11,32 @@ interface cartInstance extends Model {
 }
 
 const cartModel = sequelize.define<cartInstance>('cart', {
-    cartID: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    userID: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    productID: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    productQuantity: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    isOrdered : {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false
-    }
+  cartID: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  userID: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  productID: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  productQuantity: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  isOrdered: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  }
 
-  }, {
-    timestamps: false,
-    tableName: 'cart'
-  })
+}, {
+  timestamps: false,
+  tableName: 'cart'
+})
 
-
-
-export { cartModel, cartInstance };
+export { cartModel, cartInstance }

@@ -1,13 +1,13 @@
 import express from 'express'
 import bodyParser from 'body-parser'
 import { syncModels } from './config/db'
-import userRoutes from './custmer/controllers/authenticationController'
-import productRoutes from './custmer/routes/productRoutes'
-import cartRoutes from './custmer/routes/cartRoutes'
-import wishListRoutes from './custmer/routes/wishListRoutes'
 import addressRoutes from './custmer/routes/addressRoutes'
-import orderRoutes from './custmer/routes/orderRoutes'
-import profileRoutes from './custmer/routes/profileRoutes'
+import authenticationRoutes from './customer/routes/authenticationRoutes'
+import productRoutes from './customer/routes/productRoutes'
+import cartRoutes from './customer/routes/cartRoutes'
+import wishListRoutes from './customer/routes/wishListRoutes'
+import orderRoutes from './customer/routes/orderRoutes'
+import profileRoutes from './customer/routes/profileRoutes'
 import adminRoutes from './admin/routes/adminRoutes'
 
 import cors from 'cors'
@@ -20,8 +20,7 @@ app.use(cors())
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
-//user
-app.use('/', userRoutes)
+app.use('/', authenticationRoutes)
 app.use('/products', productRoutes)
 app.use('/cart', cartRoutes )
 app.use('/wishList', wishListRoutes)
@@ -32,6 +31,8 @@ app.use('/address',addressRoutes )
 //admin
 app.use('/admin',adminRoutes)
 
+
+app.use('/admin', adminRoutes)
 
 syncModels()
   .then(() => {

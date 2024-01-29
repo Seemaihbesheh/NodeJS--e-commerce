@@ -1,22 +1,19 @@
 import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
-import Joi from 'joi';
 const brandModel = sequelize.define('brand', {
-    brandID: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-  },{
-    timestamps: false,
-    tableName: 'brand'
-  }
-  )
-  
+ brandID: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+}, {
+  timestamps: false,
+  tableName: 'brand'
+}
+)
 
-
-export { brandModel };
+export { brandModel }

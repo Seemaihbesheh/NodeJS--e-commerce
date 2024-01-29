@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { categoryModel, brandModel, userModel, sessionModel, productModel, orderModel, addressModel } from '../models/modelsRelations';
 
+
 const { v4: uuidv4 } = require('uuid');
 
 const generateRandomData = () => {
@@ -10,7 +11,7 @@ const generateRandomData = () => {
 
   const randomUser = () => {
     const password = generatePassword();
-    
+
     return {
       firstName: faker.name.firstName(),
       lastName: faker.name.lastName(),
@@ -23,7 +24,7 @@ const generateRandomData = () => {
   const generatePassword = () => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@$!%*?&';
     let password = '';
-  
+
     while (!passwordPattern.test(password)) {
       password = '';
   
@@ -32,7 +33,7 @@ const generateRandomData = () => {
         password += characters.charAt(randomIndex);
       }
     }
-  
+
     return password;
   };
 
@@ -123,6 +124,7 @@ export const fillTables = async () => {
     // Insert Brand
     await insertAndLog(brandModel, randomBrand, 'name');
 
+
     // Insert User
     //await insertAndLog(userModel, randomUser, 'firstName');
 
@@ -146,6 +148,7 @@ export const fillTables = async () => {
     // Insert Order
     await insertAndLog(
       orderModel,
+
       () => randomOrder(faker.number.int({ min: 1, max: 10 }), faker.number.int({ min: 1, max: 20 }), faker.number.int({ min: 1, max: 20 })),
       'firstName'
     );
@@ -155,3 +158,4 @@ export const fillTables = async () => {
     console.error('Insert faker done, but the validation for relationships may be wrong because', error.message);
   }
 };
+

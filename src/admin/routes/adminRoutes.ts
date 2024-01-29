@@ -1,11 +1,12 @@
-import express from 'express';
-import multer from 'multer';
-import { allUsers} from '../controllers/adminController';
+import express from 'express'
+const router = express.Router()
 
+import ordersRoutes from './orderRoutes'
+import usersRoutes from './userRoutes'
+import productsRoutes from "./productRoutes"
 
-const router = express.Router();
+router.use('/orders', ordersRoutes)
+router.use('/users', usersRoutes)
+router.use('/products',productsRoutes)
 
-router.get('/get-users' ,allUsers);
-
-
-export default router;
+export default router
