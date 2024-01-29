@@ -128,7 +128,10 @@ export const addToCart = async function (userID: number, productID: number, prod
     const productExist = await findCartProduct(userID, productID)
 
     if (productExist) {
-      return await updateProductInCart(productExist.productID, userID, productExist.productQuantity + productQuantity)
+      const updateData = {
+        productQuantity: productExist.productQuantity + productQuantity
+    }
+      return await updateProductInCart(productExist.productID, userID, updateData)
     } else {
       const newCart = {
         userID: userID,
