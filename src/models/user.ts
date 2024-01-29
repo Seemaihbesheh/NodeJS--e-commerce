@@ -12,7 +12,7 @@ interface userInstance extends Model {
   email: string,
   password: string,
   mobile: string,
-image?: Buffer | null; // Adjusted type for image
+  image?: Buffer | null, // Adjusted type for image
   dateOfBirth : Date
 
 }
@@ -43,11 +43,11 @@ const userModel = sequelize.define<userInstance>('users', {
   },
   image: {
   type: DataTypes.BLOB('long'), 
-   
-   allowNull:true  },
+   allowNull:true,  
+  },
     dateOfBirth:{
-    type: DataTypes.DATE
-    allowNull: true
+    type: DataTypes.DATE,
+    allowNull: true,
 
   }
 }, {
