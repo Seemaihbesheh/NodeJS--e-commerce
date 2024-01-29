@@ -15,7 +15,10 @@ export const getOrders = async (req: Request, res: Response): Promise<any> => {
 
     const orders = await orderSevices.getOrdersByStatus(status, page, pageSize)
     const count = orders.length
-
+ if (!orders) {
+      //throw new CustomError('No Orders were found', 404)
+return res.status(404).json("Not Found")
+    }
     return res.status(200).json({ "count": count, "orders": orders })
 
   } catch (error) {
