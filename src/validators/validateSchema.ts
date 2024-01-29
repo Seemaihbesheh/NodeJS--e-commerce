@@ -1,9 +1,12 @@
 import Joi from "joi";
 
+
 export const wishListValidationSchema = Joi.object({
     userID: Joi.number().integer().positive().required(),
     productID: Joi.number().integer().positive().required(),
 }).options({ abortEarly: false, stripUnknown: true });
+
+
 
 export const addressValidationSchema = Joi.object({
     userID: Joi.number().integer().positive(),
@@ -97,3 +100,4 @@ export const ratingValidationSchema = Joi.object({
     productID: Joi.number().integer().positive().required(),
 
 }).options({ abortEarly: false, stripUnknown: true });
+

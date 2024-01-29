@@ -11,13 +11,13 @@ import adminRoutes from './admin/routes/adminRoutes'
 import {fillTables} from './utils/seedsFaker'
 
 import cors from 'cors'
-//fillTables
+//fillTables()
+
 const app = express()
 app.use(cors())
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
-
 app.use('/', authenticationRoutes)
 app.use('/products', productRoutes)
 app.use('/cart', cartRoutes )

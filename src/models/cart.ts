@@ -1,5 +1,6 @@
 import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
+import Joi from "joi";
 
 interface cartInstance extends Model {
   cartID: number,

@@ -1,12 +1,15 @@
 import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
 
+
 interface imageInstance extends Model {
   imageID: number,
   productID: number,
   imgPath: string
+  position: number;
 }
 const imageModel = sequelize.define<imageInstance>('images', {
+
   imageID: {
     type: DataTypes.INTEGER,
     primaryKey: true,

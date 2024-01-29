@@ -1,17 +1,20 @@
 import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
+import Joi from "joi";
 
 interface productInstance extends Model {
+
   productID: number,
-  title: string,
-  subTitle: string,
-  description: string,
-  price: number,
-  quantity: number,
-  category: number,
-  discount: number,
-  arrivalDate: string,
-  brand: number
+    title: string,
+    subTitle: string,
+    description: string,
+    price: number,
+    quantity: number,
+    categoryID: number,
+    discount: number,
+    arrivalDate: string,
+    brand: number,
+    image: string | null,
 }
 const productModel = sequelize.define<productInstance>('products', {
   productID: {
@@ -60,3 +63,4 @@ const productModel = sequelize.define<productInstance>('products', {
 })
 
 export { productModel, productInstance }
+

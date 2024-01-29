@@ -1,7 +1,9 @@
 import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
 import bcrypt from 'bcrypt'
+
 import { findUser } from "../services/userServices"
+
 
 interface userInstance extends Model {
   userID: number,
@@ -10,7 +12,9 @@ interface userInstance extends Model {
   email: string,
   password: string,
   mobile: string,
-  image?: Buffer | null
+  image?: Buffer | null, // Adjusted type for image
+  dateOfBirth : Date
+
 }
 const userModel = sequelize.define<userInstance>('users', {
   userID: {
@@ -38,9 +42,13 @@ const userModel = sequelize.define<userInstance>('users', {
     type: DataTypes.STRING,
   },
   image: {
-    type: DataTypes.BLOB('long'),
+  type: DataTypes.BLOB('long'), 
+   allowNull:true,  
+  },
+    dateOfBirth:{
+    type: DataTypes.DATE,
+    allowNull: true,
 
-    allowNull: true
   }
 }, {
   timestamps: false,
@@ -54,7 +62,6 @@ userModel.beforeSave(async (thisUser: any) => {
     thisUser.password = hashedPass
   }
 })
-
 userModel.beforeValidate(async (thisUser: any) => {
   console.log(thisUser.password)
   if (thisUser.isNewRecord && thisUser.Password) {
