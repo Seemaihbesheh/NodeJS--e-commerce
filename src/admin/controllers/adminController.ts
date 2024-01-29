@@ -4,7 +4,6 @@ import { userModel } from '../../models/user';
 
 import { sequelize } from "../../config/db"
 import { addressModel } from '../../models/modelsRelations'
-import { Attribute } from '@angular/core';
 import { Op } from 'sequelize';
 
 //allUsers
