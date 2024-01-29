@@ -25,7 +25,8 @@ export const updateProductQuantityInCart = async function (req: CustomRequest, r
 
 
 // Validating the request body against the schema
-const validationResult = cartValidationSchema.validate({ userID,productID, newQuantity });
+const validationResult = cartValidationSchema.validate({ userID, productID, productQuantity: newQuantity });
+
 
 if (validationResult.error) {
     return res.status(400).json("Invalid Input");
