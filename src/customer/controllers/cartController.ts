@@ -33,7 +33,7 @@ if (validationResult.error) {
 
     await cartServices.updateProductQuantityInCart(userID, productID, newQuantity)
 
-    return res.status(200).json()
+    return res.status(200).json("")
   } catch (error) {
     console.error(error)
     return res.status(error.status).json(error.message)
