@@ -9,7 +9,7 @@ interface orderInstance extends Model {
   mobile: string,
   addressID: number,
   street: string,
-  state: string,
+  state: string,//status
   city: string,
   pinCode: string,
   status: string,

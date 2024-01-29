@@ -1,6 +1,7 @@
 import { Response } from 'express'
 import { CustomRequest } from '../middlewares/sessionMiddleware'
 import * as WishlistService from '../../services/wishlistServices'
+import { wishListValidationSchema } from '../../validators/validateSchema'
 
 export const getWishList = async function (req: CustomRequest, res: Response): Promise<any> {
   try {
@@ -16,10 +17,14 @@ export const getWishList = async function (req: CustomRequest, res: Response): P
 export const toggleWishlist = async function (req: CustomRequest, res: Response): Promise<any> {
 
   try {
-    const productID = Number(req.params.productID)
+    const productID = req.params.productID
     const userID = req.user.userID
 
+    const validationResult = wishListValidationSchema.validate({ userID, productID });
 
+    if (validationResult.error) {
+        return res.status(400).json("Invalid Input");
+    }
     const result = await WishlistService.toggleWishlistItem(userID, productID)
     return res.status(200).json(result)
 

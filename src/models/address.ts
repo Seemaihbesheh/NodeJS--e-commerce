@@ -16,7 +16,8 @@ const addressModel = sequelize.define<addressInstance>('addresses', {
     autoIncrement: true
   },
   userID: {
-    type: DataTypes.INTEGER
+    type: DataTypes.INTEGER,
+    allowNull: false  
   },
   street: {
     type: DataTypes.STRING,

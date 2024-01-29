@@ -4,13 +4,14 @@ import { syncModels } from './config/db'
 import authenticationRoutes from './customer/routes/authenticationRoutes'
 import productRoutes from './customer/routes/productRoutes'
 import cartRoutes from './customer/routes/cartRoutes'
-import wishListRoutes from './customer/routes/cartRoutes'
+import wishListRoutes from './customer/routes/wishListRoutes'
 import orderRoutes from './customer/routes/orderRoutes'
 import profileRoutes from './customer/routes/profileRoutes'
 import adminRoutes from './admin/routes/adminRoutes'
+import {fillTables} from './utils/seedsFaker'
 
 import cors from 'cors'
-
+//fillTables
 const app = express()
 app.use(cors())
 

@@ -8,7 +8,7 @@ export const getUserAddresses = async (req: CustomRequest, res: Response): Promi
     const userID = req.user.userID
 
     if (!userID) {
-      return res.status(400).json({ error: 'userID is required' })
+      return res.status(400).json("Invalid Input")
     }
 
     const address = await addressServices.getUserAddresses(userID)
