@@ -1,6 +1,7 @@
 import express from 'express'
 import bodyParser from 'body-parser'
 import { syncModels } from './config/db'
+import addressRoutes from './custmer/routes/addressRoutes'
 import authenticationRoutes from './customer/routes/authenticationRoutes'
 import productRoutes from './customer/routes/productRoutes'
 import cartRoutes from './customer/routes/cartRoutes'
@@ -11,18 +12,25 @@ import adminRoutes from './admin/routes/adminRoutes'
 
 import cors from 'cors'
 
+import {fillTables} from './models/seedsFaker'
+//fillTables();
+
 const app = express()
 app.use(cors())
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
-
 app.use('/', authenticationRoutes)
 app.use('/products', productRoutes)
 app.use('/cart', cartRoutes )
 app.use('/wishList', wishListRoutes)
 app.use("/profile", profileRoutes )
 app.use('/orders', orderRoutes)
+app.use('/address',addressRoutes )
+
+//admin
+app.use('/admin',adminRoutes)
+
 
 app.use('/admin', adminRoutes)
 

@@ -1,6 +1,7 @@
 import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
 
+
 interface wishListInstance extends Model {
   wishlistID: number,
   userID: number,

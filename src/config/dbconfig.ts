@@ -3,7 +3,7 @@ import { Dialect } from "sequelize"
 const dbConfig = {
     HOST: 'localhost',
     USER: 'root',
-    PASSWORD: '12345678',
+    PASSWORD: 'seema123.I',
     DB: 'coraldatabase',
     dialect: 'mysql' as Dialect,
     pool: {

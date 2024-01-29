@@ -1,5 +1,6 @@
 import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
+
 interface categoryInstance extends Model {
   categoryID: number,
   name: string,
@@ -20,3 +21,4 @@ const categoryModel = sequelize.define<categoryInstance>('category', {
 })
 
 export { categoryModel, categoryInstance }
+
