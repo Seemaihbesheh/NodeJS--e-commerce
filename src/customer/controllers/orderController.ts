@@ -6,18 +6,19 @@ import * as cartServices from '../../services/cartServices'
 import * as productSevices from '../../services/productServices'
 import * as addressServices from '../../services/addressServices'
 import { addressValidationSchema } from '../../validators/validateSchema'
-export const getOrders = async (req: Request, res: Response): Promise<any> => {                                                             
+
+export const getUserOrders = async (req: CustomRequest, res: Response): Promise<any> => {                                                             
   try {
-    const status = (req.query.status as string) || "Completed";
+    const userID = req.user.userID
+    const status = (req.query.status as string) || "completed";
 
     const page = Number(req.query.page) || 1
     const pageSize = Number(req.query.pageSize) || 10
 
-    const orders = await orderSevices.getOrdersByStatus(status, page, pageSize)
+    const orders = await orderSevices.getUserOrdersByStatus(userID, status, page, pageSize)
     const count = orders.length
  if (!orders) {
-      //throw new CustomError('No Orders were found', 404)
-    return res.status(404).json("Not Found")
+      return res.status(404).json("Not Found")
     }
     return res.status(200).json({ "count": count, "orders": orders })
 

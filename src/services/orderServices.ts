@@ -4,12 +4,13 @@ import { CustomError } from './customError'
 import { Op } from 'sequelize'
 import { v4 as uuidv4 } from 'uuid'
 
-export const getOrdersByStatus = async function (status: string, page: number, pageSize: number): Promise<any> {
+export const getUserOrdersByStatus = async function (userID:number, status: string, page: number, pageSize: number): Promise<any> {
   try {
 
     const orders = await models.orderModel.findAll({
       attributes: ['displayID', 'date', 'grandTotal', 'isPaid'],
       where: {
+        userID: userID,
         status: status
       },
       limit: pageSize,
