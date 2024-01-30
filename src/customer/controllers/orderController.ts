@@ -7,27 +7,6 @@ import * as productSevices from '../../services/productServices'
 import * as addressServices from '../../services/addressServices'
 import { addressValidationSchema } from '../../validators/validateSchema'
 
-export const getUserOrders = async (req: CustomRequest, res: Response): Promise<any> => {                                                             
-  try {
-    const userID = req.user.userID
-    const status = (req.query.status as string) || "completed";
-
-    const page = Number(req.query.page) || 1
-    const pageSize = Number(req.query.pageSize) || 10
-
-    const orders = await orderSevices.getUserOrdersByStatus(userID, status, page, pageSize)
-    const count = orders.length
- if (!orders) {
-      return res.status(404).json("Not Found")
-    }
-    return res.status(200).json({ "count": count, "orders": orders })
-
-  } catch (error) {
-    res.status(error.status).json(error.message)
-  }
-
-}
-
 export const getSpecificOrder = async function (req: Request, res: Response): Promise<any> {
   try {
 
@@ -55,8 +34,6 @@ export const placeOrder = async function (req: CustomRequest, res: Response): Pr
     let isPaid = true
 
     const { street, state, city, pinCode } = req.body
-
-    // Validating the request body against the schema
     
     const validationResult = addressValidationSchema.validate({ street, state, city, pinCode });
 

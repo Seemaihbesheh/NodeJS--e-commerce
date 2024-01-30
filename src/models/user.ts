@@ -33,6 +33,9 @@ const userModel = sequelize.define<userInstance>('users', {
   email: {
     type: DataTypes.STRING,
     allowNull: false,
+    validate: {
+      isEmail: true
+    }
   },
   password: {
     type: DataTypes.STRING,
@@ -62,6 +65,7 @@ userModel.beforeSave(async (thisUser: any) => {
     thisUser.password = hashedPass
   }
 })
+
 userModel.beforeValidate(async (thisUser: any) => {
   console.log(thisUser.password)
   if (thisUser.isNewRecord && thisUser.Password) {

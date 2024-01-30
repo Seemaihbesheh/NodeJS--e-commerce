@@ -6,12 +6,12 @@ export const updateOrderStatus = async function (
   res: Response
 ): Promise<any> {
   const orderID = Number(req.params.orderID)
-  const newState = req.body.state
+  const newStatus = req.body.status
 
   try {
     const updatedOrder = await orderSevices.updateOrderStatus(
       orderID,
-      newState
+      newStatus
     )
 
     return res.status(200).json(updatedOrder)

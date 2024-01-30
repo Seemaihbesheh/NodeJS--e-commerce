@@ -4,33 +4,6 @@ import { CustomError } from './customError'
 import { Op } from 'sequelize'
 import { v4 as uuidv4 } from 'uuid'
 
-export const getUserOrdersByStatus = async function (userID:number, status: string, page: number, pageSize: number): Promise<any> {
-  try {
-
-    const orders = await models.orderModel.findAll({
-      attributes: ['displayID', 'date', 'grandTotal', 'isPaid'],
-      where: {
-        userID: userID,
-        status: status
-      },
-      limit: pageSize,
-      offset: (page - 1) * pageSize,
-    })
-
-    if (!orders) {
-      throw new CustomError('No Orders were found', 404)
-    }
-
-    return orders
-
-  } catch (error) {
-    if (error instanceof CustomError) {
-      throw error
-    } else {
-      throw new CustomError('Internal Server Error', 500)
-    }
-  }
-}
 
 export const getSpecificOrder = async function (orderID: number): Promise<any> {
   try {

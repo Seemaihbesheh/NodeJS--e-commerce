@@ -1,5 +1,5 @@
 import * as models from "../models/modelsRelations"
-
+import {CustomError} from './customError'
 
 
 export const findRatings = async function (options?: any): Promise<any> {
@@ -12,7 +12,7 @@ export const findRatings = async function (options?: any): Promise<any> {
       });
 
     } catch (error) {
-      throw error
+      throw new CustomError('Internal Server Error', 500)
     }
 }
 
@@ -22,7 +22,7 @@ export const addRating = async function (newRating): Promise<any> {
       return await models.ratingModel.create(newRating);
 
     } catch (error) {
-      throw error
+      throw new CustomError('Internal Server Error', 500)
     }
 }
 
@@ -34,6 +34,6 @@ export const updateRating = async function (newRating , where): Promise<any> {
       });
 
     } catch (error) {
-      throw error
+      throw new CustomError('Internal Server Error', 500)
     }
 }

@@ -9,9 +9,8 @@ router.get('/brand/:brand', optionalAutorization, productControllers.getProducts
 router.get('/new-arrival', optionalAutorization, productControllers.getNewArrivalProducts)
 router.get('/limited', optionalAutorization, productControllers.getLimitedProducts)
 router.get('/discount', optionalAutorization, productControllers.getProductsByDiscoutOrMore)
-
-
 router.get('/handpicked', optionalAutorization, productControllers.handPicked)
+
 router.get('/product', productControllers.getSpecificProduct)
 router.post('/rate/:productID', sessionMiddleware, productControllers.rateProduct)
 router.get('/ratings-and-reviews/:productID', productControllers.getRateAndReview)

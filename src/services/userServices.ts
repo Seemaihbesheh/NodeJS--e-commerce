@@ -4,12 +4,8 @@ import { sequelize } from "../config/db"
 
 export const findUser = async function (findBy: { userID?: number, email?: string }): Promise<any> {
   try {
-    const foundUser = await models.userModel.findOne({ where: findBy })
 
-    if (!foundUser) {
-      throw new CustomError('User Not found', 500)
-    }
-    return foundUser
+    return await models.userModel.findOne({ where: findBy })
 
   } catch (err) {
     console.log(err.message)
@@ -20,19 +16,18 @@ export const findUser = async function (findBy: { userID?: number, email?: strin
 export const findAllUsers = async function (page: number, pageSize: number): Promise<any> {
   try {
     const users = await models.userModel.findAndCountAll({
-      attributes: [
-        "userID",
-        "firstName",
-        "lastName",
-        "email",
-        "mobile",
-        "image"
-      ],
       limit: pageSize,
       offset: (page - 1) * pageSize,
-    })
+    });
+    
+    const allUsers = users.rows.map(user => ({
+      fullName: `${user.firstName} ${user.lastName}`,
+      email: user.email,
+      mobile: user.mobile,
+      image: user.image,
+    }))
 
-    return users
+    return allUsers
   } catch (error) {
     throw new CustomError('Internal Server Error', 500)
   }
@@ -74,25 +69,7 @@ export const getUserRatingsAndReviews = async function (userID: number): Promise
   }
 }
 
-export const getUserProfile = async function (userID: number): Promise<any> {
-  try {
-    return await models.userModel.findByPk(userID, {
-      attributes: [
-        "firstName",
-        "lastName",
-        "email",
-        "mobile",
-        "image",
-        "dateOfBirth"
-      ]
-    })
-  } catch (err) {
-
-    throw new CustomError('Internal Server Error', 500)
-  }
-}
-
-export const updateUserProfile = async function (userID: number, updateData: { firstName?: string, lastName?: string, image?: Buffer }): Promise<any> {
+export const updateUserProfile = async function (userID: number, updateData: { firstName?: string, lastName?: string, dateOfBirth?: Date, image?: Buffer }): Promise<any> {
   try {
 
     const [rowCount, updatedUsers] = await models.userModel.update(
@@ -104,7 +81,7 @@ export const updateUserProfile = async function (userID: number, updateData: { f
         returning: true
       }
     )
-    
+
     if (rowCount === 0) {
       throw new CustomError('User not found or no rows were updated.', 404);
     }
@@ -114,4 +91,59 @@ export const updateUserProfile = async function (userID: number, updateData: { f
   } catch (err) {
     throw new CustomError(err.message, 500);
   }
-};
+}
+
+export const getUserAddresses = async function (userID: number): Promise<any> {
+  try {
+    return await models.addressModel.findAll({
+      attributes: [
+        'street',
+        'state',
+        'city',
+        'pinCode',
+      ],
+      include: [
+        {
+          model: models.userModel,
+          attributes: [[sequelize.literal('CONCAT(`user`.`firstName`, " ", `user`.`lastName`)'), 'fullName'], 'mobile'
+          ],
+          as: 'user',
+          required: false
+        }
+      ],
+      where: {
+        userID: userID
+      }
+    })
+  } catch (error) {
+    throw new CustomError('Internal Server Error', 500)
+  }
+}
+
+export const getUserOrdersByStatus = async function (userID: number, status: string, page: number, pageSize: number): Promise<any> {
+  try {
+
+    const orders = await models.orderModel.findAll({
+      attributes: ['displayID', 'date', 'grandTotal', 'isPaid'],
+      where: {
+        userID: userID,
+        status: status
+      },
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
+    })
+
+    if (!orders) {
+      throw new CustomError('No Orders were found', 404)
+    }
+
+    return orders
+
+  } catch (error) {
+    if (error instanceof CustomError) {
+      throw error
+    } else {
+      throw new CustomError('Internal Server Error', 500)
+    }
+  }
+}
