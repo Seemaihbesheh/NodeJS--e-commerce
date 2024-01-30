@@ -45,6 +45,6 @@ export const findAddress = async function (addressData: any): Promise<any> {
       },
     })
   } catch (error) {
-
+    throw new CustomError('Internal Server Error', 500)
   }
 }

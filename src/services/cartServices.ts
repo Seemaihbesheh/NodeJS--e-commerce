@@ -122,7 +122,9 @@ export const addToCart = async function (userID: number, productID: number, prod
     }
 
     if (product.quantity < productQuantity) {
+
       throw new CustomError('Not enough quantity', 400)
+
     }
 
     const productExist = await findCartProduct(userID, productID)
@@ -130,7 +132,9 @@ export const addToCart = async function (userID: number, productID: number, prod
     if (productExist) {
       const updateData = {
         productQuantity: productExist.productQuantity + productQuantity
-    };
+
+    }
+
       return await updateProductInCart(productExist.productID, userID, updateData)
     } else {
       const newCart = {

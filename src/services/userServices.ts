@@ -93,21 +93,24 @@ export const getUserProfile = async function (userID: number): Promise<any> {
 
 export const updateUserProfile = async function (userID: number, updateData: { firstName?: string, lastName?: string, image?: Buffer }): Promise<any> {
   try {
-    const [rowCount, [updatedUser]] = await models.userModel.update({
-      ...updateData
-      // mobile :mobile,
-      // dateOfBirth : dateOfBirth
-    }, {
-      where: {
-        userID: userID
-      }, returning: true
-    })
-    if (rowCount === 0) {
-      throw new CustomError('User not found.', 404)
-    }
-    return updatedUser
 
+    const [rowCount, updatedUsers] = await models.userModel.update(
+      { ...updateData },
+      {
+        where: {
+          userID: userID
+        },
+        returning: true
+      }
+    )
+    
+    if (rowCount === 0) {
+      throw new CustomError('User not found or no rows were updated.', 404);
+    }
+
+    // Assuming you may have multiple updated users, so using updatedUsers directly
+    return updatedUsers;
   } catch (err) {
-    throw new CustomError('Internal Server Error', 500)
+    throw new CustomError(err.message, 500);
   }
-}
+};

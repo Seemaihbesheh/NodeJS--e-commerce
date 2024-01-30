@@ -1,5 +1,6 @@
 import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
+import Joi from "joi";
 
 interface orderInstance extends Model {
   orderID: number,
@@ -8,17 +9,19 @@ interface orderInstance extends Model {
   email: string,
   mobile: string,
   addressID: number,
+  isPaid: boolean,
   street: string,
-  state: string,
+  state: string,//status
   city: string,
   pinCode: string,
   status: string,
-  date: string,
+   date: string,
   paymentMethod: string,
   grandTotal: number,
   displayID: number
 }
 const orderModel = sequelize.define<orderInstance>('orderDetails', {
+
   orderID: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -86,3 +89,4 @@ const orderModel = sequelize.define<orderInstance>('orderDetails', {
 })
 
 export { orderModel, orderInstance }
+

@@ -1,5 +1,7 @@
 import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
+import Joi from "joi";
+
 
 interface addressInstance extends Model {
   addressID: number,
@@ -16,7 +18,9 @@ const addressModel = sequelize.define<addressInstance>('addresses', {
     autoIncrement: true
   },
   userID: {
-    type: DataTypes.INTEGER
+
+    type: DataTypes.INTEGER,
+    allowNull: false  
   },
   street: {
     type: DataTypes.STRING,

@@ -1,5 +1,6 @@
 import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
+import Joi from "joi";
 
 interface ratingInstance extends Model {
   ratingID: number,
@@ -32,3 +33,4 @@ const ratingModel = sequelize.define<ratingInstance>('ratings', {
 })
 
 export { ratingModel, ratingInstance }
+

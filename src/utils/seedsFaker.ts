@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
-import * as models from '../models/modelsRelations';
+import { categoryModel, brandModel, userModel, sessionModel, productModel, orderModel, addressModel } from '../models/modelsRelations';
+
 
 const { v4: uuidv4 } = require('uuid');
 
@@ -26,7 +27,7 @@ const generateRandomData = () => {
 
     while (!passwordPattern.test(password)) {
       password = '';
-
+  
       for (let i = 0; i < 8; i++) {
         const randomIndex = Math.floor(Math.random() * characters.length);
         password += characters.charAt(randomIndex);
@@ -118,34 +119,36 @@ export const fillTables = async () => {
     };
 
     // Insert Category
-    await insertAndLog(models.categoryModel, randomCategory, 'name');
+    await insertAndLog(categoryModel, randomCategory, 'name');
 
     // Insert Brand
-    await insertAndLog(models.brandModel, randomBrand, 'name');
+    await insertAndLog(brandModel, randomBrand, 'name');
+
 
     // Insert User
     //await insertAndLog(userModel, randomUser, 'firstName');
 
     // Insert Session
-    await insertAndLog(models.sessionModel, () => randomSession(faker.number.int({ min: 1, max: 10 })), 'sessionID');
+    await insertAndLog(sessionModel, () => randomSession(faker.number.int({ min: 1, max: 10 })), 'sessionID');
 
     // Insert Product
     await insertAndLog(
-      models.productModel,
+      productModel,
       () => randomProduct(faker.number.int({ min: 1, max: 10 }), faker.number.int({ min: 1, max: 10 })),
       'title'
     );
-    /*
-        // Insert Address
-        await insertAndLog(
-          addressModel,
-          () => randomAddress(faker.number.int({ min: 1, max: 20 }), faker.number.int({ min: 1, max: 10 })),
-          'street'
-        );
-    */
+/*
+    // Insert Address
+    await insertAndLog(
+      addressModel,
+      () => randomAddress(faker.number.int({ min: 1, max: 20 }), faker.number.int({ min: 1, max: 10 })),
+      'street'
+    );
+*/
     // Insert Order
     await insertAndLog(
-      models.orderModel,
+      orderModel,
+
       () => randomOrder(faker.number.int({ min: 1, max: 10 }), faker.number.int({ min: 1, max: 20 }), faker.number.int({ min: 1, max: 20 })),
       'firstName'
     );
@@ -155,3 +158,4 @@ export const fillTables = async () => {
     console.error('Insert faker done, but the validation for relationships may be wrong because', error.message);
   }
 };
+

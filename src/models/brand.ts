@@ -1,8 +1,7 @@
 import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
-
 const brandModel = sequelize.define('brand', {
-  brandID: {
+ brandID: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,

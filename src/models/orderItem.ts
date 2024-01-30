@@ -1,5 +1,6 @@
 import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
+import Joi from "joi";
 
 interface orderItemInstance extends Model {
   orderItemID: number,
@@ -54,4 +55,6 @@ const orderItemModel = sequelize.define<orderItemInstance>('orderItems', {
   tableName: 'orderitems'
 })
 
-export { orderItemModel, orderItemInstance }
+
+
+export { orderItemModel, orderItemInstance };
