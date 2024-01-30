@@ -2,13 +2,17 @@ import * as models from '../models/modelsRelations'
 import { CustomError } from './customError'
 import { sequelize } from "../config/db"
 
-export const findUser = async function (findBy: { userID?: number; email?: string }): Promise<any> {
+export const findUser = async function (findBy: { userID?: number, email?: string }): Promise<any> {
   try {
-    const foundUser = await models.userModel.findOne({ where:  findBy  })
+    const foundUser = await models.userModel.findOne({ where: { findBy } })
+
+    if (!foundUser) {
+      throw new CustomError('User Not found', 500)
+    }
     return foundUser
 
   } catch (err) {
-    throw new CustomError('Internal Server Error', 500)
+    throw new CustomError(err, 500)
   }
 }
 
