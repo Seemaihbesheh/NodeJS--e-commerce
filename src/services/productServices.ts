@@ -1,6 +1,7 @@
-import { Response } from "express";
-import { sequelize } from "../config/db";
-import { CustomRequest } from "../customer/middlewares/sessionMiddleware";
+import { Response } from "express"
+import { sequelize } from "../config/db"
+import { CustomRequest } from "../customer/middlewares/sessionMiddleware"
+import { CustomError } from './customError'
 import * as models from "../models/modelsRelations"
 
 export const getProduct = async function (productID: number, options?: any): Promise<any> {
@@ -75,11 +76,24 @@ export async function createProduct(newProduct): Promise<any> {
 
 export async function updateProduct(productID: number, updatedFields, transaction?: any): Promise<void> {
   try {
+    const existingProduct = await getProduct(productID, {
+      attributes: ["productID", "quantity"],  
+      transaction,
+    })
+
+    if (!existingProduct) {
+      throw new CustomError('Product not found', 404)
+    }
+
+    if (updatedFields.quantity !== undefined && existingProduct.quantity < updatedFields.quantity) {
+      throw new CustomError('No enough quantity', 400)
+    }
+
     await models.productModel.update(
       updatedFields,
       {
         where: { productID },
-        transaction: transaction
+        transaction,
       }
     );
   } catch (error) {

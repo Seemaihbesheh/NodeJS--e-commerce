@@ -40,9 +40,7 @@ export const getUserAddresses = async function (userID: number): Promise<any> {
 export const findAddress = async function (addressData: any): Promise<any> {
   try {
     await models.addressModel.findOne({
-      where: {
-        addressData
-      },
+      where: addressData
     })
   } catch (error) {
     throw new CustomError('Internal Server Error', 500)

@@ -1,5 +1,7 @@
 import { sessionModel, userModel } from '../../models/modelsRelations'
 import { NextFunction, Request, Response } from 'express'
+import * as userServices from '../../services/userServices'
+
 interface CustomRequest extends Request {
   session?: any,
   user? :any
@@ -43,10 +45,11 @@ async function isAuth(req , res  , next) {
     const foundSession = await sessionModel.findOne({ where: { sessionID: req.headers.authorization } })
 
     if (foundSession) {
-      const user = await userModel.findByPk(foundSession.dataValues.userID);
-      req.user = user;
+      const user = await userServices.findUser(foundSession.dataValues.userID)
+      req.user = user
       req.session = foundSession
       next()
+
     } else {
       return res.status(400).json({error: 'Session not found or timed out. Please log in again.'})
     }

@@ -11,11 +11,11 @@ interface orderInstance extends Model {
   addressID: number,
   isPaid: boolean,
   street: string,
-  state: string,//status
+  state: string,
   city: string,
   pinCode: string,
   status: string,
-   date: string,
+  date: string,
   paymentMethod: string,
   grandTotal: number,
   displayID: number
