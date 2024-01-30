@@ -32,51 +32,28 @@ export const getCartContent = async function (userID: number): Promise<any> {
   }
 }
 
-export const updateProductQuantityInCart = async function (userID: number, productID: number, newQuantity: number): Promise<any> {
-  try {
-    const product = await productServices.getProduct(productID)
-    if (!product) {
-      throw new CustomError('Product does not exist', 404)
-
-    }
-    if (product.quantity < newQuantity) {
-      throw new CustomError('No enough quantity', 400)
-    }
-
-    const cartProduct = await findCartProduct(userID, productID)
-    return await updateProductInCart(cartProduct.productID, userID, { productQuantity: newQuantity })
-
-  } catch (error) {
-
-    if (error instanceof CustomError) {
-      throw error
-    } else {
-      throw new CustomError('Internal Server Error', 500)
-    }
-  }
-}
-
 export const moveToWishlist = async function (userID: number, productID: number): Promise<any> {
   const transaction = await sequelize.transaction()
 
   try {
     const productInCart = await findCartProduct(userID, productID)
-
-    if (productInCart) {
-      const isProductInWishlist = await wishListServices.isAdedToWishList(userID, productID)
-
-      if (isProductInWishlist) {
-        throw new CustomError('Product Already in the wishList', 404)
-      }
-
-      await models.cartModel.destroy({ where: { userID: userID, productID: productID }, transaction: transaction })
-
-
-      await wishListServices.addToWishList(userID, productID, transaction)
-
-      await transaction.commit()
+    if (!productInCart) {
+      throw new CustomError('Product not Added To the Cart', 404)
     }
-    throw new CustomError('Product not Added To the Cart', 404)
+
+    const isProductInWishlist = await wishListServices.isAdedToWishList(userID, productID)
+
+    if (isProductInWishlist) {
+      throw new CustomError('Product Already in the wishList', 404)
+    }
+
+    await deleteProductFromCart(userID, productID, transaction)
+
+    await wishListServices.addToWishList(userID, productID, transaction)
+
+    await transaction.commit()
+
+
   } catch (error) {
     await transaction.rollback()
     if (error instanceof CustomError) {
@@ -87,7 +64,7 @@ export const moveToWishlist = async function (userID: number, productID: number)
   }
 }
 
-export const deleteProductFromCart = async function (userID: number, productID: number): Promise<any> {
+export const deleteProductFromCart = async function (userID: number, productID: number, transaction?: any): Promise<any> {
   try {
     const product = await productServices.getProduct(productID)
 
@@ -95,15 +72,15 @@ export const deleteProductFromCart = async function (userID: number, productID: 
       throw new CustomError('Product does not exist', 404)
     }
 
-    await models.cartModel.destroy({
+    return await models.cartModel.destroy({
       where: {
         userID: userID,
         productID: productID,
         isOrdered: 0,
-      },
+      }, transaction: transaction
     });
 
-    return 'Deleted successfully'
+
   } catch (error) {
     if (error instanceof CustomError) {
       throw error
@@ -133,7 +110,7 @@ export const addToCart = async function (userID: number, productID: number, prod
       const updateData = {
         productQuantity: productExist.productQuantity + productQuantity
 
-    }
+      }
 
       return await updateProductInCart(productExist.productID, userID, updateData)
     } else {
@@ -163,6 +140,15 @@ export const updateProductInCart = async function updateProductInCart(
   transaction?: any
 ) {
   try {
+    const product = await productServices.getProduct(cartProductID)
+    if (!product) {
+      throw new CustomError('Product does not exist', 404)
+
+    }
+    if (product.quantity < updateData.productQuantity) {
+      throw new CustomError('No enough quantity', 400)
+    }
+
     const [updatedRowsCount] = await models.cartModel.update(
       updateData,
       {
@@ -189,7 +175,7 @@ export const updateProductInCart = async function updateProductInCart(
       throw new CustomError('Internal Server Error', 500)
     }
   }
-};
+}
 
 export const findCartProduct = async function (userID: number, productID: number): Promise<any> {
   try {

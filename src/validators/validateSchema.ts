@@ -16,13 +16,11 @@ export const addressValidationSchema = Joi.object({
     pinCode: Joi.number().integer().positive().required(),
 });
 
-// Define Joi schema for validation
 export const brandValidationSchema = Joi.object({
     name: Joi.string().trim().min(2).max(255).required(),
 });
 
 
-// Joi schema for validation
 export const cartValidationSchema = Joi.object({
     userID: Joi.number().integer().positive().required(),
     productID: Joi.number().integer().positive().required(),
@@ -32,21 +30,19 @@ export const cartValidationSchema = Joi.object({
 
 
 
-// Joi schema for validation
 export const imageValidationSchema = Joi.object({
     productID: Joi.number().integer().positive().required(),
     imgPath: Joi.string().trim().min(3).max(255).required(),
     position: Joi.number().integer().positive().required(),
 }).options({ abortEarly: false, stripUnknown: true });
 
-// Joi schema for validation
+
 export const categoryValidationSchema = Joi.object({
     name: Joi.string().trim().min(3).max(255).required(),
 }).options({ abortEarly: false, stripUnknown: true });
 
 
 
-// Joi schema for validation
 export const orderValidationSchema = Joi.object({
   userID: Joi.number().integer().required(),
   fullName: Joi.string().required(),
@@ -65,7 +61,6 @@ export const orderValidationSchema = Joi.object({
 }).options({ abortEarly: false, stripUnknown: true });
 
 
-// Joi schema for validation
 export const orderItemValidationSchema = Joi.object({
     orderID: Joi.number().integer().positive().required(),
     productID: Joi.number().integer().positive().required(),
@@ -77,7 +72,6 @@ export const orderItemValidationSchema = Joi.object({
 }).options({ abortEarly: false, stripUnknown: true });
 
 
-// Joi schema for validation
 export const productValidationSchema = Joi.object({
     title: Joi.string().trim().min(3).max(255).required(),
     subTitle: Joi.string().trim().min(3).max(255).allow(null),
@@ -92,7 +86,6 @@ export const productValidationSchema = Joi.object({
 }).options({ abortEarly: false, stripUnknown: true });
 
 
-// Joi schema for validation
 export const ratingValidationSchema = Joi.object({
 
     userID: Joi.number().integer().positive().required(),
@@ -101,3 +94,7 @@ export const ratingValidationSchema = Joi.object({
 
 }).options({ abortEarly: false, stripUnknown: true });
 
+export const validNumber = function(mobileNumber: string):Boolean{
+    const phoneRegex = /^\+(\d{2,3})\s(\d{2})-(\d{3})-(\d{4})$/
+       return phoneRegex.test(mobileNumber)
+} 

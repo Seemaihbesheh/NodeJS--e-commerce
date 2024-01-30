@@ -1,7 +1,7 @@
 import { Response } from 'express'
 import * as cartServices from '../../services/cartServices'
 import { CustomRequest } from '../middlewares/sessionMiddleware'
-import {cartValidationSchema} from '../../validators/validateSchema'
+import { cartValidationSchema } from '../../validators/validateSchema'
 
 export const getCartContent = async function (req: CustomRequest, res: Response): Promise<any> {
   try {
@@ -24,15 +24,14 @@ export const updateProductQuantityInCart = async function (req: CustomRequest, r
     const userID = req.user.userID
 
 
-// Validating the request body against the schema
-const validationResult = cartValidationSchema.validate({ userID, productID, productQuantity: newQuantity });
+    const validationResult = cartValidationSchema.validate({ userID, productID, productQuantity: newQuantity });
 
 
-if (validationResult.error) {
-    return res.status(400).json("Invalid Input");
-}
+    if (validationResult.error) {
+      return res.status(400).json("Invalid Input");
+    }
 
-    await cartServices.updateProductQuantityInCart(userID, productID, newQuantity)
+    await cartServices.updateProductInCart(userID, productID, { productQuantity: newQuantity })
 
     return res.status(200).json()
   } catch (error) {
@@ -52,7 +51,7 @@ export const moveToWishlist = async function (req: CustomRequest, res: Response)
 
     await cartServices.moveToWishlist(userID, productID)
 
-    return res.status(200)
+    return res.status(200).json()
   } catch (error) {
     console.error(error)
     return res.status(error.status).json(error.message)
@@ -64,16 +63,15 @@ export const deleteProductFromCart = async function (req: CustomRequest, res: Re
     const productID = Number(req.params.productID)
     const userID = req.user.userID;
 
-     // Validating the request body against the schema
-     const validationResult = cartValidationSchema.validate({ productID, userID });
+    const validationResult = cartValidationSchema.validate({ productID, userID });
 
-     if (validationResult.error) {
-         return res.status(400).json("Invalid Input");
-     }
+    if (validationResult.error) {
+      return res.status(400).json("Invalid Input");
+    }
 
     await cartServices.deleteProductFromCart(userID, productID)
 
-    return res.status(200)
+    return res.status(200).json()
   } catch (error) {
     console.error(error)
     return res.status(error.status).json(error.message)
@@ -87,12 +85,11 @@ export const addToCart = async function (req: CustomRequest, res: Response): Pro
     const userID = req.user.userID
     const productQuantity = req.body.productQuantity
 
-    // Validating the request body against the schema
-const validationResult = cartValidationSchema.validate({ userID,productID, productQuantity });
+    const validationResult = cartValidationSchema.validate({ userID, productID, productQuantity });
 
-if (validationResult.error) {
-    return res.status(400).json("Invalid Input");
-}
+    if (validationResult.error) {
+      return res.status(400).json("Invalid Input");
+    }
 
 
     const result = await cartServices.addToCart(userID, productID, productQuantity)

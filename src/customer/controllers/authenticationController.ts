@@ -25,8 +25,8 @@ export const login = async function (req: Request, res: Response): Promise<any> 
 export const changePassword = async function (req: CustomRequest, res: Response): Promise<any> {
   try {
     const userID = req.user.userID
-    const result = await changePassword(userID, req.body)
-    res.status(200).json(result)
+    const result = await authenticationServices.changePassword(userID, req.body)
+    res.status(200).json()
   } catch (error) {
     res.status(error.status).json(error.message)
   }
@@ -37,7 +37,7 @@ export const logout = async function (req: CustomRequest, res: Response): Promis
   try {
     const sessionID = req.session.sessionID
     await authenticationServices.logout(sessionID)
-    res.status(200)
+    res.status(200).json()
   } catch (error) {
     res.status(error.status).json(error.message)
   }

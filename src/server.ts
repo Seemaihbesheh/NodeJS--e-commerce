@@ -22,7 +22,7 @@ app.use('/', authenticationRoutes)
 app.use('/products', productRoutes)
 app.use('/cart', cartRoutes )
 app.use('/wishList', wishListRoutes)
-app.use("/profile", profileRoutes )
+app.use('/profile', profileRoutes )
 app.use('/orders', orderRoutes)
 
 app.use('/admin', adminRoutes)

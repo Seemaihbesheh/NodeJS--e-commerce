@@ -46,12 +46,9 @@ export const toggleWishlistItem = async (userID: number, productID: any) => {
     const isAdded = await isAdedToWishList(userID, productID)
 
     if (isAdded) {
-      await models.wishListModel.destroy({ where: { userID: userID, productID: productID } })
-      return 'Removed from wishlist'
+      return await removeProductFromWishList(userID, productID)
     }
-
-    const newWishlist = await addToWishList(userID, productID)
-    return { newWishlist }
+    return await addToWishList(userID, productID)
 
   } catch (error) {
     throw new CustomError('Internal Server Error', 500)
@@ -68,6 +65,14 @@ export const addToWishList = async function (userID: number, productID: number, 
     return newWishlist
 
   } catch (error) {
+    throw new CustomError('Internal Server Error', 500)
+  }
+}
+
+export const removeProductFromWishList = async function(userID, productID): Promise<any>{
+  try {
+    return await models.wishListModel.destroy({ where: { userID: userID, productID: productID } })
+  } catch (err){
     throw new CustomError('Internal Server Error', 500)
   }
 }

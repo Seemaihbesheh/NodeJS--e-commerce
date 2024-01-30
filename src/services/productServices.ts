@@ -22,7 +22,7 @@ export const getProduct = async function (productID: number, options?: any): Pro
 
     return await models.productModel.findByPk(productID, finalOptions);
   } catch (error) {
-    throw error
+    throw new CustomError('Internal Server Error', 500)
   }
 }
 
@@ -33,7 +33,7 @@ export const getAllProducts = async (req: CustomRequest, res: Response, options:
     let userID = req.user?.userID || null;
 
     return await models.productModel.findAll({
-      where:options.where,
+      where: options.where,
       attributes: [
         'productID',
         'title',
@@ -61,23 +61,23 @@ export const getAllProducts = async (req: CustomRequest, res: Response, options:
     );
 
   } catch (error) {
-    throw(error)
+    throw new CustomError('Internal Server Error', 500)
   }
 }
 
 export async function createProduct(newProduct): Promise<any> {
   try {
-    await models.productModel.create(newProduct)
+    return await models.productModel.create(newProduct)
 
   } catch (error) {
-    throw error
+    throw new CustomError('Internal Server Error', 500)
   }
 }
 
 export async function updateProduct(productID: number, updatedFields, transaction?: any): Promise<void> {
   try {
     const existingProduct = await getProduct(productID, {
-      attributes: ["productID", "quantity"],  
+      attributes: ["productID", "quantity"],
       transaction,
     })
 
@@ -89,14 +89,22 @@ export async function updateProduct(productID: number, updatedFields, transactio
       throw new CustomError('No enough quantity', 400)
     }
 
-    await models.productModel.update(
+    const [updatedRows] = await models.productModel.update(
       updatedFields,
       {
         where: { productID },
         transaction,
       }
-    );
+    )
+    if (updatedRows === 0) {
+      throw new CustomError('No product was updated', 400)
+    }
+    return updatedRows[0]
+
   } catch (error) {
+    if (error !instanceof CustomError){
+      throw new CustomError('Internal Server Error', 500)
+    }
     throw error
   }
 }
