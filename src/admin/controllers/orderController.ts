@@ -12,7 +12,7 @@ export const updateOrderStatus = async function (
 
   try {
 
-    const validationResult = validates.orderValidationSchema.validate({ orderID:orderID, state:newState })
+    const validationResult = validates.orderValidationSchema.validate({ orderID:orderID, status:newStatus })
 
     if (validationResult.error) {
         return res.status(400).json("Invalid Input");
