@@ -90,7 +90,7 @@ export const getUserProfile = async function (userID: number): Promise<any> {
 export const updateUserProfile = async function (userID: number, updateData: { firstName?: string, lastName?: string, image?: Buffer }): Promise<any> {
   try {
     const [rowCount, [updatedUser]] = await models.userModel.update({
-      updateData
+      ...updateData
       // mobile :mobile,
       // dateOfBirth : dateOfBirth
     }, {
