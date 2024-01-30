@@ -3,14 +3,16 @@ import { productModel } from '../../models/product';
 import * as categorySevices from "../../services/categoryServices";
 import * as brandSevices from "../../services/brandServices";
 import * as productSevices from '../../services/productServices'
-
+import  * as validates from '../../validators/validateSchema'
 
 export const addProduct = async function (req : Request , res:Response) {
     try{
         const {title ,subTitle, description, price, quantity, categoryName, brandName} = req.body;
 
-        if(!title || !subTitle || !description || !price || !quantity || !categoryName || !brandName){
-            return res.status(404).json("All fields are required");
+        const validationResult = validates.productValidationSchema.validate({ title, subTitle, description, price, quantity }) && validates.brandValidationSchema.validate({ name: brandName }) && validates.categoryValidationSchema.validate({ name: categoryName });
+
+        if (validationResult.error) {
+            return res.status(400).json("Invalid Input");
         }
 
         let discount = req.body.discount
@@ -18,9 +20,7 @@ export const addProduct = async function (req : Request , res:Response) {
             discount = 0;
         }
 
-        if(typeof(price) != "number" || typeof(quantity) != "number" || typeof(discount) != "number" || price < 1){
-            return res.status(404).json("Invalid field");
-        }
+        
 
         const category = await categorySevices.findCategoryByName(categoryName)
         if(!category){
@@ -58,14 +58,17 @@ export const updateProduct = async function (req : Request , res:Response) {
         const productID=Number( req.params.productID)
         const {title ,subTitle, description, price, quantity, categoryName, brandName , discount} = req.body;
 
+        const validationResult = validates.productValidationSchema.validate({ title, subTitle, description, price, quantity,discount }) && validates.brandValidationSchema.validate({ name: brandName }) && validates.categoryValidationSchema.validate({ name: categoryName });
+
+        if (validationResult.error) {
+            return res.status(400).json("Invalid Input");
+        }
         const product = await productModel.findByPk(productID);
         if(!product){
             return res.status(404).json("product not found")
         }
 
-        if( (price && typeof(price) != "number") || ( quantity && typeof(quantity) != "number") ||(discount && typeof(discount) != "number" )|| (price && price < 1)){
-            return res.status(404).json("Invalid field");
-        }
+       }
 
         //if the admin need to update the category
         let category;
