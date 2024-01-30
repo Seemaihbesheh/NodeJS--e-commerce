@@ -61,21 +61,18 @@ export const placeOrder = async function (req: CustomRequest, res: Response): Pr
     if (validationResult.error) {
       return res.status(400).json("Invalid Input");
     }
-    
     const existingAddress = await addressServices.findAddress({ userID, street, state, city, pinCode })
-    let addressID = existingAddress.addressID
 
     if (!existingAddress) {
-      const newAddress = await addressServices.createAddress({
+      await addressServices.createAddress({
         userID,
         street,
         state,
         city,
         pinCode,
       }, transaction)
-      addressID = newAddress.addressID
     }
-
+    
     const email = req.user.email
 
     const { fullName, mobile, paymentMethod } = req.body
@@ -108,18 +105,18 @@ export const placeOrder = async function (req: CustomRequest, res: Response): Pr
     }))
 
     if (paymentMethod === 'cash On Delivery') isPaid = false
-
+    
     const newOrder = await orderSevices.createOrder({
-      fullName,
-      mobile,
       userID,
+      fullName,
       email,
-      paymentMethod,
-      isPaid,
-      state,
+      mobile,
       street,
+      state,
       city,
       pinCode,
+      isPaid,
+      paymentMethod,
       grandTotal,
     }, transaction)
     const orderID = newOrder.orderID
@@ -133,7 +130,7 @@ export const placeOrder = async function (req: CustomRequest, res: Response): Pr
 
     }))
     await transaction.commit()
-    return res.status(201)
+    return res.status(201).json(newOrder)
 
   } catch (error) {
     await transaction.rollback()

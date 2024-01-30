@@ -151,32 +151,45 @@ export const addToCart = async function (userID: number, productID: number, prod
     if (error instanceof CustomError) {
       throw error
     } else {
-      throw new CustomError(error, 500)
+      throw new CustomError('Internal Server Error', 500)
     }
   }
 }
 
-export const updateProductInCart = async function updateProductInCart(cartProductID: number, userID: number, updateData: { productQuantity?: number, isOrdered?: boolean }, transaction?: any) {
+export const updateProductInCart = async function updateProductInCart(
+  cartProductID: number,
+  userID: number,
+  updateData: { productQuantity?: number, isOrdered?: boolean },
+  transaction?: any
+) {
   try {
-    const [updatedRowsCount] = await models.cartModel.update(updateData,
+    const [updatedRowsCount] = await models.cartModel.update(
+      updateData,
       {
         where: {
           productID: cartProductID,
           userID: userID,
-        }, transaction: transaction
-      })
+        },
+        transaction: transaction
+      }
+    );
+
     if (updatedRowsCount === 0) {
-      throw new CustomError('product cannot be updated', 400)
+      throw new CustomError('Product cannot be updated', 400);
     }
 
-    const updatedProduct = await productServices.getProduct(cartProductID)
+    const updatedProduct = await productServices.getProduct(cartProductID);
 
-    return (updatedProduct)
+    return updatedProduct
 
   } catch (error) {
-    throw new CustomError(error, 500)
+    if (error instanceof CustomError) {
+      throw error
+    } else {
+      throw new CustomError('Internal Server Error', 500)
+    }
   }
-}
+};
 
 export const findCartProduct = async function (userID: number, productID: number): Promise<any> {
   try {
