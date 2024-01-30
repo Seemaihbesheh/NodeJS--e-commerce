@@ -5,9 +5,11 @@ import { Request, Response } from 'express'
 import { Op } from 'sequelize'
 import { brandModel } from "../../models/brand"
 import FuzzySearch from 'fuzzy-search'
-import { getAllProducts } from "../../services/productServices"
+import * as productServices from "../../services/productServices"
 import { ratingValidationSchema } from '../../validators/validateSchema'
-
+import * as categorySevices from "../../services/categoryServices";
+import * as brandSevices from "../../services/brandServices";
+import * as ratingSevices from "../../services/ratingServices";
 
 export const getProductsByCategory = async (req: CustomRequest, res: Response): Promise<any> => {
   try{
@@ -16,11 +18,7 @@ export const getProductsByCategory = async (req: CustomRequest, res: Response): 
     if(!categoryName){
       return res.status(400).json("Invalid Input")
     }
-    const category = await categoryModel.findOne({
-          where: {
-              name: categoryName
-          }
-    })
+    const category = await categorySevices.findCategoryByName(categoryName)
       
     if (!category) {
         return res.status(404).json("category does not exist")
@@ -37,7 +35,7 @@ export const getProductsByCategory = async (req: CustomRequest, res: Response): 
       where : options.where
     });
 
-    const result =await getAllProducts(req, res, options);
+    const result =await productServices.getAllProducts(req, res, options);
     res.json({
       totalCount: count, 
       products: result,
@@ -55,11 +53,7 @@ export const getProductsByBrand = async (req: CustomRequest, res: Response): Pro
     if(!brandName){
       return res.status(400).json("Invalid Input")
     }
-    const brand = await brandModel.findOne({
-        where : {
-            name : brandName
-        }
-    })
+    const brand = await brandSevices.findBrandByName(brandName)
 
     if(!brand){
       return res.status(404).json("brand does not exist")
@@ -75,7 +69,7 @@ export const getProductsByBrand = async (req: CustomRequest, res: Response): Pro
       where:options.where
     });
   
-    const result =await getAllProducts(req, res, options);
+    const result =await productServices.getAllProducts(req, res, options);
     res.json({
       totalCount: count, 
       products: result,
@@ -105,7 +99,7 @@ export const getNewArrivalProducts = async function (req: CustomRequest, res: Re
       where :options.where
     });
 
-    const result =await getAllProducts(req, res, options);
+    const result =await productServices.getAllProducts(req, res, options);
     res.json({
       totalCount: count, 
       products: result,
@@ -134,7 +128,7 @@ export const getLimitedProducts = async function (req: CustomRequest, res: Respo
       where :options.where
     });
     
-    const result =await getAllProducts(req, res, options);
+    const result =await productServices.getAllProducts(req, res, options);
 
     res.json({
       totalCount: count, 
@@ -163,7 +157,7 @@ export const getProductsByDiscoutOrMore = async function (req: CustomRequest, re
       where: options.where
     });
 
-    const result =await getAllProducts(req, res, options);
+    const result =await productServices.getAllProducts(req, res, options);
     res.json({
       totalCount: count, 
       products: result,
@@ -176,31 +170,23 @@ export const getProductsByDiscoutOrMore = async function (req: CustomRequest, re
 
 export const getTrendyProducts = async (req: CustomRequest, res: Response): Promise<void> => {
   try{
-
-
     const options = {
       order: [[sequelize.literal('avgRating'), 'DESC']],
       having: sequelize.literal('avgRating >= 4.5'),  // Add HAVING clause for trendy products
     };
 
-    const productsCount = await productModel.findAll({
-      attributes:[
-        "productID",
-        [sequelize.fn('COUNT', sequelize.col('products.productID')), 'count']],
-      include: [
-        {
-          model: ratingModel,
-          attributes: [],
+    const count = await productModel.count({
+      where: {
+        productID: {
+          [Op.in]: sequelize.literal(`(SELECT productID FROM ratings GROUP BY productID HAVING AVG(rating) >= 4.5)`),
         },
-      ],
-      group: ['productID'],
-      having: sequelize.literal('AVG(`ratings`.`rating`) >= 4.5'),
+      },
     });
 
-    const result =await getAllProducts(req, res, options);
+    const result =await productServices.getAllProducts(req, res, options);
 
     res.status(200).json({
-      totalCount: productsCount.length, 
+      totalCount: count, 
       products: result,
     });
 
@@ -220,29 +206,17 @@ export const handPicked = async (req: CustomRequest, res: Response): Promise<any
      }
 
 
-    const category = await categoryModel.findOne({
-      attributes: ['categoryID'],
-      where: {
-        name: categoryName
-      }
-    })
+    const category = await categorySevices.findCategoryByName(categoryName)
     if (!category) { 
       return res.status(404).json('No Products Found');
      }
 
-    const productsCount = await productModel.findAll({
-      attributes:[
-        "productID",
-        "price",
-        [sequelize.fn('COUNT', sequelize.col('products.productID')), 'count']],
-      include: [
-        {
-          model: ratingModel,
-          attributes: [],
+     const count = await productModel.count({
+      where: {
+        productID: {
+          [Op.in]: sequelize.literal(`(SELECT productID FROM ratings GROUP BY productID HAVING AVG(rating) >= 4.5 and price < 100)`),
         },
-      ],
-      group: ['productID'],
-      having: sequelize.literal('AVG(`ratings`.`rating`) >= 4.5 and price <100'),
+      },
     });
 
     const options = {
@@ -250,10 +224,10 @@ export const handPicked = async (req: CustomRequest, res: Response): Promise<any
       having: sequelize.literal('avgRating >= 4.5 and price <100'),  // Add HAVING clause for trendy products
     };
 
-    const result =await getAllProducts(req, res, options);
+    const result =await productServices.getAllProducts(req, res, options);
 
     res.status(200).json({
-      totalCount: productsCount.length, 
+      totalCount: count, 
       products: result,
     });
 
@@ -268,7 +242,6 @@ export const getSpecificProduct = async (req: Request, res: Response): Promise<a
 
     if (!productID) {
       return  res.status(400).json({ error: 'productid are required' });
-    
     }
 
     const Product = await productModel.findOne({
@@ -317,7 +290,7 @@ export const rateProduct = async (req: CustomRequest, res: Response): Promise<an
   try {
 
     const rating = req.body.rating;
-    const productID = req.params.productID;
+    const productID =Number( req.params.productID);
     const userID = req.user.userID;
 
    //validate
@@ -326,46 +299,39 @@ export const rateProduct = async (req: CustomRequest, res: Response): Promise<an
      return res.status(400).json("Invalid Input");
    }
 
-    const existProduct = await productModel.findOne({
-      where: {
-        productID: productID,
-      },
-    });
+    const existProduct = await productServices.getProduct(productID)
 
     if (!existProduct) {
       return res.status(404).json('Product Not Found');
     }
 
-
-    const existRate = await ratingModel.findOne({
+    const options = {
       where: {
         userID: userID,
         productID: productID,
-      },
-    });
+      }
+    }
 
+    const existRate = await ratingSevices.findRatings(options);
 
     if (!existRate) {
-      const newRating = await ratingModel.create({
+      await ratingSevices.addRating({
         userID: userID,
         rating: rating,
         productID: productID,
       });
 
-
       return res.status(200).json()
     }
     else { //existRate
       if (existRate.rating !== rating) {
-        const updatedRows = await ratingModel.update(
+        await ratingSevices.updateRating(
           {
             rating: rating,
           },
           {
-            where: {
-              userID: userID,
-              productID: productID,
-            },
+            userID: userID,
+            productID: productID,
           }
         )
         return res.status(200).json()
@@ -400,20 +366,18 @@ export const getRateAndReview = async (req: Request, res: Response): Promise<any
       },
     });
 
-    const reviews = await ratingModel.findAll({
-      attributes: ['rating'],
+    const options ={
       where: {
         productID: productID,
       },
       include: [{
         model: userModel,
         attributes: ['firstName', 'lastName'],
+      }],
+      order :[["rating", "DESC"]]
+    }
 
-      }
-      ]
-      ,
-      order: [["rating", "DESC"]],
-    });
+    const reviews = await ratingSevices.findRatings(options);
 
     return res.status(200).json(
       {
