@@ -122,7 +122,9 @@ export const addToCart = async function (userID: number, productID: number, prod
     }
 
     if (product.quantity < productQuantity) {
-      throw new CustomError('Not enough quantity',400)
+
+      throw new CustomError('Not enough quantity', 400)
+
     }
 
     const productExist = await findCartProduct(userID, productID)
@@ -130,7 +132,9 @@ export const addToCart = async function (userID: number, productID: number, prod
     if (productExist) {
       const updateData = {
         productQuantity: productExist.productQuantity + productQuantity
+
     }
+
       return await updateProductInCart(productExist.productID, userID, updateData)
     } else {
       const newCart = {
@@ -147,7 +151,7 @@ export const addToCart = async function (userID: number, productID: number, prod
     if (error instanceof CustomError) {
       throw error
     } else {
-      throw new CustomError('Internal Server Error', 500)
+      throw new CustomError(error, 500)
     }
   }
 }
@@ -170,7 +174,7 @@ export const updateProductInCart = async function updateProductInCart(cartProduc
     return (updatedProduct)
 
   } catch (error) {
-    throw new CustomError('Internal Server Error', 500)
+    throw new CustomError(error, 500)
   }
 }
 
