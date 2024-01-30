@@ -6,7 +6,7 @@ import * as cartServices from '../../services/cartServices'
 import * as productSevices from '../../services/productServices'
 import * as addressServices from '../../services/addressServices'
 import { addressValidationSchema } from '../../validators/validateSchema'
-export const getOrders = async (req: Request, res: Response): Promise<any> => {
+export const getOrders = async (req: Request, res: Response): Promise<any> => {                                                             
   try {
     const status = (req.query.status as string) || "Completed";
 
@@ -17,7 +17,7 @@ export const getOrders = async (req: Request, res: Response): Promise<any> => {
     const count = orders.length
  if (!orders) {
       //throw new CustomError('No Orders were found', 404)
-return res.status(404).json("Not Found")
+    return res.status(404).json("Not Found")
     }
     return res.status(200).json({ "count": count, "orders": orders })
 
@@ -49,6 +49,7 @@ export const placeOrder = async function (req: CustomRequest, res: Response): Pr
   const transaction = await sequelize.transaction()
 
   try {
+
     const userID = req.user.userID
     let isPaid = true
 
@@ -100,7 +101,7 @@ export const placeOrder = async function (req: CustomRequest, res: Response): Pr
         element.productDiscount = productExist.discount,
         element.subTotal = (productExist.price * (1 - productExist.discount / 100) * element.productQuantity),
         element.productQuantity = element.productQuantity
-
+        element.quantity = productExist.quantity
       grandTotal += element.subTotal
     }))
 
@@ -124,7 +125,7 @@ export const placeOrder = async function (req: CustomRequest, res: Response): Pr
     await Promise.all(orderItems.map(async (element) => {
       await orderSevices.createOrderItem(element, orderID, transaction)
       let productID = element.productID
-      let newQuantity = this.quantity - element.productQuantity
+      let newQuantity = element.quantity - element.productQuantity
       await productSevices.updateProduct(productID, { quantity: newQuantity }, transaction)
       await cartServices.updateProductInCart(productID, userID, { isOrdered: true }, transaction)
 

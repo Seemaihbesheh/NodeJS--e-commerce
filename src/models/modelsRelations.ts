@@ -35,8 +35,6 @@ orderItemModel.belongsTo(orderModel, { foreignKey: 'orderID' })
 
 orderItemModel.belongsTo(productModel, { foreignKey: 'productID' })
 
-orderModel.belongsTo(addressModel, { foreignKey: 'addressID' })
-
 productModel.hasMany(imageModel, { foreignKey: 'productID' })
 imageModel.belongsTo(productModel, { foreignKey: 'productID' })
 
