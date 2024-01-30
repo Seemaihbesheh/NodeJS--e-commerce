@@ -20,7 +20,6 @@ export const addProduct = async function (req : Request , res:Response) {
             discount = 0;
         }
 
-        
 
         const category = await categorySevices.findCategoryByName(categoryName)
         if(!category){
@@ -68,9 +67,6 @@ export const updateProduct = async function (req : Request , res:Response) {
             return res.status(404).json("product not found")
         }
 
-       }
-
-        //if the admin need to update the category
         let category;
         let categoryID;
         if(categoryName){
