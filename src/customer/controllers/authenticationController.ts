@@ -6,6 +6,7 @@ import * as authenticationServices from '../../services/authenticationServices'
 
 export const signUp = async function (req: Request, res: Response): Promise<any> {
   try {
+    console.log(req.body)
     const result = await authenticationServices.signUp(req.body)
     res.status(200).json(result)
   } catch (error) {

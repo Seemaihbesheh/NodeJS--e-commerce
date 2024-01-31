@@ -45,7 +45,7 @@ async function isAuth(req , res  , next) {
     const foundSession = await sessionModel.findOne({ where: { sessionID: req.headers.authorization } })
 
     if (foundSession) {
-      const user = await userServices.findUser(foundSession.dataValues.userID)
+      const user = await userServices.findUser({userID: foundSession.userID})
       req.user = user
       req.session = foundSession
       next()
