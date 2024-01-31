@@ -337,7 +337,7 @@ export const rateProduct = async (req: CustomRequest, res: Response): Promise<an
             productID: productID,
           }
         )
-        return res.status(200).json()
+        return res.status(200).json("Rated Done")
       }
 
     }
