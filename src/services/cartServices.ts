@@ -134,8 +134,8 @@ export const addToCart = async function (userID: number, productID: number, prod
 }
 
 export const updateProductInCart = async function updateProductInCart(
-  cartProductID: number,
   userID: number,
+  cartProductID: number,
   updateData: { productQuantity?: number, isOrdered?: boolean },
   transaction?: any
 ) {
@@ -143,14 +143,13 @@ export const updateProductInCart = async function updateProductInCart(
     const product = await productServices.getProduct(cartProductID)
     if (!product) {
       throw new CustomError('Product does not exist', 404)
-
     }
     if (product.quantity < updateData.productQuantity) {
       throw new CustomError('No enough quantity', 400)
     }
 
     const [updatedRowsCount] = await models.cartModel.update(
-      updateData,
+      {...updateData},
       {
         where: {
           productID: cartProductID,
@@ -158,13 +157,13 @@ export const updateProductInCart = async function updateProductInCart(
         },
         transaction: transaction
       }
-    );
+    )
 
     if (updatedRowsCount === 0) {
-      throw new CustomError('Product cannot be updated', 400);
+      throw new CustomError('Product cannot be updated', 400)
     }
 
-    const updatedProduct = await productServices.getProduct(cartProductID);
+    const updatedProduct = await productServices.getProduct(cartProductID)
 
     return updatedProduct
 

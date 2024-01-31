@@ -10,9 +10,10 @@ import * as sessionServices from './sessionServices'
 export async function signUp(userData: any): Promise<{ sessionID: string }> {
     try {
         const { email, password, firstName, lastName } = userData
-        const fieldsValidation = validations.userSchema.validate(userData)
+        
+        const fieldsValidation = validations.userSchema.validate({firstName, lastName})
         if (fieldsValidation.error) {
-            throw new CustomError("All fields are required", 400)
+            console.log (fieldsValidation.error)
         }
 
         const foundUser = await userServices.findUser({ email: email })
@@ -45,7 +46,7 @@ export async function signUp(userData: any): Promise<{ sessionID: string }> {
         } else if (error instanceof CustomError) {
             throw error
         } else {
-            throw new CustomError("Internal Server Error", 500)
+            throw error
         }
     }
 }

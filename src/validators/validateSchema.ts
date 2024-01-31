@@ -109,7 +109,6 @@ export const passwordSchema = Joi.string().pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*
 
 export const userSchema = Joi.object({
     password: passwordSchema,
-    email: Joi.string().email().required(),
     firstName: Joi.string().required(),
     lastName: Joi.string().required(),
 })
