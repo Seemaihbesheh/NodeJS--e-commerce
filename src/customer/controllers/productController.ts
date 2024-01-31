@@ -318,7 +318,7 @@ export const rateProduct = async (req: CustomRequest, res: Response): Promise<an
 
    const existRate = await ratingSevices.findRatings(options);
 
-    if (!existRate) {
+    if (existRate.length == 0) {
       await ratingSevices.addRating({
         userID: userID,
         rating: rating,
