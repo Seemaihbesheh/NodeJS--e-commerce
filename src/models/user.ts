@@ -2,8 +2,6 @@ import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
 import {CustomError} from '../services/customError'
 import { findUser } from "../services/userServices"
-import { text } from "aws-sdk/clients/customerprofiles"
-
 
 interface userInstance extends Model {
   userID: number,
