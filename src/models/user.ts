@@ -32,10 +32,7 @@ const userModel = sequelize.define<userInstance>('users', {
   },
   email: {
     type: DataTypes.STRING,
-    allowNull: false,
-    validate: {
-      isEmail: true
-    }
+    allowNull: false
   },
   password: {
     type: DataTypes.STRING,
