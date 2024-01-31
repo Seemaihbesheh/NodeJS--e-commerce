@@ -1,8 +1,5 @@
-
 import multer from 'multer';
-
 import { CustomRequest } from "../middlewares/sessionMiddleware";
-
 
 interface MulterRequest extends  CustomRequest {
   file: {

@@ -9,7 +9,7 @@ export const signUp = async function (req: Request, res: Response): Promise<any>
     const result = await authenticationServices.signUp(req.body)
     res.status(200).json(result)
   } catch (error) {
-    res.status(error.status).json(error.message)
+    res.status(error.status).json({error: error.message})
   }
 }
 
@@ -18,7 +18,7 @@ export const login = async function (req: Request, res: Response): Promise<any> 
     const result = await authenticationServices.login(req.body)
     res.status(200).json(result)
   } catch (error) {
-    res.status(error.status).json(error.message)
+    res.status(error.status).json({error: error.message})
   }
 }
 
@@ -28,7 +28,7 @@ export const changePassword = async function (req: CustomRequest, res: Response)
     const result = await authenticationServices.changePassword(userID, req.body)
     res.status(200).json()
   } catch (error) {
-    res.status(error.status).json(error.message)
+    res.status(error.status).json({error: error.message})
   }
 
 }
@@ -39,7 +39,7 @@ export const logout = async function (req: CustomRequest, res: Response): Promis
     await authenticationServices.logout(sessionID)
     res.status(200).json()
   } catch (error) {
-    res.status(error.status).json(error.message)
+    res.status(error.status).json({error: error.message})
   }
 
 }

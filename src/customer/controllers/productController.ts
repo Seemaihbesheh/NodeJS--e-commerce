@@ -18,13 +18,13 @@ export const getProductsByCategory = async (req: CustomRequest, res: Response): 
 
     const validationResult = validations.categoryValidationSchema.validate({ name: categoryName });
     if (validationResult.error) {
-      return res.status(400).json("Invalid Input");
+      return res.status(400).json({error: "Invalid Input"});
     }
 
     const category = await categorySevices.findCategoryByName(categoryName)
 
     if (!category) {
-      return res.status(404).json("category does not exist")
+      return res.status(404).json({error: "category does not exist"})
     }
 
     const options = {
@@ -45,7 +45,7 @@ export const getProductsByCategory = async (req: CustomRequest, res: Response): 
     });
 
   } catch (error) {
-    res.status(error.status).json(error.message)
+    res.status(error.status).json({error: error.message})
   }
 }
 
@@ -55,12 +55,12 @@ export const getProductsByBrand = async (req: CustomRequest, res: Response): Pro
 
     const validationResult = validations.brandValidationSchema.validate({ name: brandName });
     if (validationResult.error) {
-      return res.status(400).json("Invalid Input");
+      return res.status(400).json({error: "Invalid Input"});
     }
     const brand = await brandSevices.findBrandByName(brandName)
 
     if (!brand) {
-      return res.status(404).json("brand does not exist")
+      return res.status(404).json({error: "brand does not exist"})
     }
     const options = {
       where: {
@@ -80,7 +80,7 @@ export const getProductsByBrand = async (req: CustomRequest, res: Response): Pro
     });
 
   } catch (error) {
-    res.status(error.status).json(error.message)
+    res.status(error.status).json({error: error.message})
   }
 
 }
@@ -111,7 +111,7 @@ export const getNewArrivalProducts = async function (req: CustomRequest, res: Re
 
   } catch (error) {
     console.log(error.message)
-    res.status(error.status).json(error.message)
+    res.status(error.status).json({error: error.message})
   }
 }
 
@@ -140,7 +140,7 @@ export const getLimitedProducts = async function (req: CustomRequest, res: Respo
     });
 
   } catch (error) {
-    res.status(error.status).json(error.message)
+    res.status(error.status).json({error: error.message})
   }
 }
 
@@ -168,7 +168,7 @@ export const getProductsByDiscoutOrMore = async function (req: CustomRequest, re
     });
 
   } catch (error) {
-    res.status(error.status).json(error.message)
+    res.status(error.status).json({error: error.message})
   }
 }
 
@@ -196,7 +196,7 @@ export const getTrendyProducts = async (req: CustomRequest, res: Response): Prom
 
   } catch (error) {
     console.log(error.message)
-    res.status(error.status).json(error.message)
+    res.status(error.status).json({error: error.message})
   }
 
 }
@@ -212,7 +212,7 @@ export const handPicked = async (req: CustomRequest, res: Response): Promise<any
 
     const category = await categorySevices.findCategoryByName(categoryName)
     if (!category) {
-      return res.status(404).json('No Products Found');
+      return res.status(404).json({error: 'No Products Found'});
     }
 
     const count = await productModel.count({
@@ -236,7 +236,7 @@ export const handPicked = async (req: CustomRequest, res: Response): Promise<any
     });
 
   } catch (error) {
-    res.status(error.status).json(error.message)
+    res.status(error.status).json({error: error.message})
   }
 }
 
@@ -284,7 +284,7 @@ export const getSpecificProduct = async (req: Request, res: Response): Promise<a
 
   } catch (error) {
 
-    return res.status(500).json('Internal Server Error');
+    return res.status(500).json({error: 'Internal Server Error'});
 
   }
 
@@ -299,13 +299,13 @@ export const rateProduct = async (req: CustomRequest, res: Response): Promise<an
 
     const validationResult = validations.ratingValidationSchema.validate({ userID, productID, rating });
     if (validationResult.error) {
-      return res.status(400).json("Invalid Input");
+      return res.status(400).json({error: "Invalid Input"});
     }
 
     const existProduct = await productServices.getProduct(productID)
 
     if (!existProduct) {
-      return res.status(404).json('Product Not Found');
+      return res.status(404).json({error: 'Product Not Found'});
     }
 
     const options = {
@@ -346,7 +346,7 @@ export const rateProduct = async (req: CustomRequest, res: Response): Promise<an
 
   } catch (error) {
 
-    res.status(error.status).json(error.message)
+    res.status(error.status).json({error: error.message})
   }
 }
 
@@ -356,7 +356,7 @@ export const getRateAndReview = async (req: Request, res: Response): Promise<any
     const productID = req.params.productID;
 
     if (!productID) {
-      return res.status(400).json("Invalid Input");
+      return res.status(400).json({error: "Invalid Input"});
     }
 
     const count = await ratingModel.count({
@@ -387,7 +387,7 @@ export const getRateAndReview = async (req: Request, res: Response): Promise<any
 
   } catch (error) {
     console.error(error);
-    return res.status(error.status).json(error.message)
+    return res.status(error.status).json({error: error.message})
   }
 }
 
@@ -413,6 +413,6 @@ export const searchProduct = async (req: Request, res: Response): Promise<any> =
     res.status(200).send(result)
   }
   catch (err) {
-    res.status(500).send('Internal Server Error')
+    res.status(500).send({error: 'Internal Server Error'})
   }
 }

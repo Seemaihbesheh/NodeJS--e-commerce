@@ -11,7 +11,7 @@ export const getWishList = async function (req: CustomRequest, res: Response): P
     return res.status(200).json(wishList)
   } catch (error) {
     console.error(error)
-    return res.status(error.status).json(error.message)
+    return res.status(error.status).json({error: error.message})
   }
 }
 export const toggleWishlist = async function (req: CustomRequest, res: Response): Promise<any> {
@@ -23,13 +23,13 @@ export const toggleWishlist = async function (req: CustomRequest, res: Response)
     const validationResult = wishListValidationSchema.validate({ userID, productID });
 
     if (validationResult.error) {
-        return res.status(400).json("Invalid Input");
+        return res.status(400).json({error: "Invalid Input"});
     }
     const result = await wishlistService.toggleWishlistItem(userID, productID)
     return res.status(200).json()
 
   } catch (error) {
     console.error(error)
-    return res.status(error.status).json(error.message)
+    return res.status(error.status).json({error: error.message})
   }
 }

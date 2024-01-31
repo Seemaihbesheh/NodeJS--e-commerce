@@ -13,14 +13,14 @@ export const getSpecificOrder = async function (req: Request, res: Response): Pr
     const orderID = Number(req.query.orderID)
 
     if (!orderID) {
-      return res.status(404).json("Invalid input")
+      return res.status(404).json({error: "Invalid input"})
     }
     const orderDetails = await orderSevices.getSpecificOrder(orderID)
     res.status(200).json(orderDetails)
 
   } catch (error) {
     console.error(error)
-    res.status(error.status).json(error.message)
+    res.status(error.status).json({error: error.message})
   }
 }
 
@@ -38,7 +38,7 @@ export const placeOrder = async function (req: CustomRequest, res: Response): Pr
     const validationResult = addressValidationSchema.validate({ street, state, city, pinCode });
 
     if (validationResult.error) {
-      return res.status(400).json("Invalid Input");
+      return res.status(400).json({error: "Invalid Input"});
     }
     const existingAddress = await addressServices.findAddress({ userID, street, state, city, pinCode })
 
@@ -57,12 +57,12 @@ export const placeOrder = async function (req: CustomRequest, res: Response): Pr
     const { fullName, mobile, paymentMethod } = req.body
 
     if(!fullName||!mobile||!paymentMethod){
-      return res.status(400).json("Invalid Input");
+      return res.status(400).json({error: "Invalid Input"});
     }
 
     const orderItems = req.body.orderItems
     if(!orderItems){
-      return res.status(400).json("Invalid Input");
+      return res.status(400).json({error: "Invalid Input"});
     }
     let grandTotal = 0
 
@@ -71,7 +71,7 @@ export const placeOrder = async function (req: CustomRequest, res: Response): Pr
         transaction: transaction,
         lock: true
       })
-      if (!productExist) return res.status(400).send(`product doesn't exist`)
+      if (!productExist) return res.status(400).json({error: `product doesn't exist`})
 
        element.productPrice = productExist.price,
         element.productTitle = productExist.title,
@@ -113,7 +113,7 @@ export const placeOrder = async function (req: CustomRequest, res: Response): Pr
 
   } catch (error) {
     await transaction.rollback()
-    return res.status(500).json(error.message)
+    return res.status(500).json({error: error.message})
   }
 
 }

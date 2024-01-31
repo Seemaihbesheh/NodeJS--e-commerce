@@ -1,3 +1,3 @@
 node_modules
 JSbuild
-./src/config/dbconfig.ts
+src/config/dbconfig.ts

@@ -191,3 +191,16 @@ export const findCartProduct = async function (userID: number, productID: number
     throw new CustomError('Product not found in the user\'s cart.', 404)
   }
 }
+
+export const clearCart = async function (userID: number): Promise<void>  {
+  try {
+    await models.cartModel.destroy({
+      where: {
+        userID,
+        isOrdered: 0, 
+      },
+    })
+  } catch (error) {
+    throw new CustomError('Internal Server Error', 500)
+  }
+}

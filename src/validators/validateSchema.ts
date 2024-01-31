@@ -1,5 +1,5 @@
-import Joi from "joi";
-
+import Joi from "joi"
+import { CustomError } from "../services/customError"
 
 export const wishListValidationSchema = Joi.object({
     userID: Joi.number().integer().positive().required(),
@@ -44,20 +44,20 @@ export const categoryValidationSchema = Joi.object({
 
 
 export const orderValidationSchema = Joi.object({
-  userID: Joi.number().integer().required(),
-  fullName: Joi.string().required(),
-  email: Joi.string().email().required(),
-  mobile: Joi.string().required(),
-  street: Joi.string().trim().required(),
-  state: Joi.string().trim().required(),
-  city: Joi.string().trim().required(),
-  pinCode: Joi.string().required(),
-  status: Joi.string().trim().required(),
-  isPaid: Joi.boolean().required(),
-  date: Joi.date().iso().required(),
-  paymentMethod: Joi.string().required(),
-  grandTotal: Joi.number().required(),
-  displayID: Joi.number().integer().required(),
+    userID: Joi.number().integer().required(),
+    fullName: Joi.string().required(),
+    email: Joi.string().email().required(),
+    mobile: Joi.string().required(),
+    street: Joi.string().trim().required(),
+    state: Joi.string().trim().required(),
+    city: Joi.string().trim().required(),
+    pinCode: Joi.string().required(),
+    status: Joi.string().trim().required(),
+    isPaid: Joi.boolean().required(),
+    date: Joi.date().iso().required(),
+    paymentMethod: Joi.string().required(),
+    grandTotal: Joi.number().required(),
+    displayID: Joi.number().integer().required(),
 }).options({ abortEarly: false, stripUnknown: true });
 
 
@@ -94,7 +94,22 @@ export const ratingValidationSchema = Joi.object({
 
 }).options({ abortEarly: false, stripUnknown: true });
 
-export const validNumber = function(mobileNumber: string):Boolean{
+export const validNumber = function (mobileNumber: string): Boolean {
     const phoneRegex = /^\+(\d{2,3})\s(\d{2})-(\d{3})-(\d{4})$/
-       return phoneRegex.test(mobileNumber)
-} 
+    return phoneRegex.test(mobileNumber)
+}
+
+export const validPassword = function (password: string): boolean {
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return !!password.match(passwordPattern)
+}
+export const passwordSchema = Joi.string().pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/).messages({
+    'string.pattern.base': 'Password does not meet requirements: It must be at least 8 characters long and include a mix of uppercase and lowercase letters, numbers, and special characters',
+  })
+
+export const userSchema = Joi.object({
+    password: passwordSchema,
+    email: Joi.string().email().required(),
+    firstName: Joi.string().required(),
+    lastName: Joi.string().required(),
+})

@@ -1,41 +1,51 @@
-import { hashPassword } from '../utils/userUtils'
-import { generateSessionID } from '../utils/sessionUtils'
-import * as userServices from '../services/userServices'
-import * as models from '../models/modelsRelations'
-import { CustomError } from './customError'
-import bcrypt from 'bcrypt'
+import { hashPassword } from "../utils/userUtils"
+import * as userServices from "../services/userServices"
+import * as models from "../models/modelsRelations"
+import { CustomError } from "./customError"
+import bcrypt from "bcrypt"
+import { ValidationErrorItem } from "sequelize"
+import * as validations from "../validators/validateSchema"
+import * as sessionServices from './sessionServices'
 
 export async function signUp(userData: any): Promise<{ sessionID: string }> {
     try {
         const { email, password, firstName, lastName } = userData
-
-        if (!email || !password || !firstName || !lastName) {
-            throw new CustomError('All fields are required', 400)
+        const fieldsValidation = validations.userSchema.validate(userData)
+        if (fieldsValidation.error) {
+            throw new CustomError("All fields are required", 400)
         }
 
-        const foundUser = await userServices.findUser({email:email})
-
+        const foundUser = await userServices.findUser({ email: email })
         if (foundUser) {
-            throw new CustomError('Email already exists', 400)
+            throw new CustomError("Email already exists", 400)
+        }
+        const validationResult = validations.userSchema.validate({
+            password: password,
+        })
+
+        if (validationResult.error) {
+            const errorMessage = validationResult.error.message
+            throw new CustomError(errorMessage, 400)
         }
 
-        const newUser = await models.userModel.create({
-            email: userData.email,
-            password: userData.password,
-            firstName,
-            lastName,
-        });
+        const newUser = await userServices.createUser(userData)
+        const session = await sessionServices.createSession({ userID: newUser.userID })
+        return { sessionID: session.sessionID }
 
-        const sessionID = generateSessionID()
-        const sessionData = { sessionID, userID: newUser.userID }
-        await models.sessionModel.create(sessionData)
-
-        return { sessionID }
     } catch (error) {
-        if (error instanceof CustomError) {
+        if (error.name === "SequelizeValidationError") {
+            const validationErrors = error.errors as ValidationErrorItem[]
+            const emailValidationError = validationErrors.find(
+                (error) => error.path === "email"
+            )
+
+            if (emailValidationError) {
+                throw new CustomError("Invalid email format", 400)
+            }
+        } else if (error instanceof CustomError) {
             throw error
         } else {
-            throw new CustomError('Internal Server Error', 500)
+            throw new CustomError("Internal Server Error", 500)
         }
     }
 }
@@ -43,92 +53,93 @@ export async function signUp(userData: any): Promise<{ sessionID: string }> {
 export async function login(userData: any): Promise<{ sessionID: string }> {
     try {
         const { email, password } = userData
-
         if (!email || !password) {
-            throw new CustomError('Please enter all fields', 400)
+            throw new CustomError("Please enter all fields", 400)
         }
 
-        const foundUser = await userServices.findUser(email)
-
+        const foundUser = await userServices.findUser({ email })
         if (!foundUser) {
-            throw new CustomError('User not found', 404)
+            throw new CustomError("User not found", 404)
         }
 
-        const passwordMatch = await bcrypt.compare(password, foundUser.password)
-
+        const passwordMatch = await verifyPassword(password, foundUser.password)
         if (!passwordMatch) {
-            throw new CustomError('Invalid username or password', 400)
+            throw new CustomError("Invalid username or password", 400)
         }
 
-        const sessionID = generateSessionID()
-        const sessionData = { sessionID, userID: foundUser.userID }
-        await models.sessionModel.create(sessionData)
+        const session = await sessionServices.createSession({ userID: foundUser.userID })
+        return { sessionID: session.sessionID }
 
-        return { sessionID }
     } catch (error) {
         if (error instanceof CustomError) {
             throw error
         } else {
-            throw new CustomError('Internal Server Error', 500)
+            throw new CustomError("Internal Server Error", 500)
         }
     }
 }
 
-export async function changePassword(userID: number, userData: any): Promise<any> {
+export async function changePassword(
+    userID: number,
+    userData: any
+): Promise<any> {
     try {
-        const { email, password, newPassword } = userData
-
+        const { email, password, newPassword } = userData;
         if (!email || !password || !newPassword) {
-            throw new CustomError('Please enter all fields', 400)
+            throw new CustomError("Please enter all fields", 400)
         }
 
-        const foundUser = await userServices.findUser(email)
-
+        const foundUser = await userServices.findUser({ email })
         if (!foundUser) {
-            throw new CustomError('User not found', 404)
+            throw new CustomError("User not found", 404)
         }
 
-        const passwordMatch = await bcrypt.compare(password, foundUser.password)
-
+        const passwordMatch = await verifyPassword(password, foundUser.password)
         if (!passwordMatch) {
-            throw new CustomError('Invalid username or password', 400)
+            throw new CustomError("Invalid username or password", 400)
         }
 
         const hashedPass = await hashPassword(newPassword)
-
         await models.userModel.update(
             { password: hashedPass },
             { where: { email }, ...{ validate: false } }
         )
 
-        await models.sessionModel.destroy({ where: { userID: userID } })
+        await sessionServices.deleteSession({ userID: userID })
+        return "Password updated successfully"
 
-        return 'Password updated successfully'
     } catch (error) {
         if (error instanceof CustomError) {
             throw error
         } else {
-            throw new CustomError('Internal Server Error', 500)
+            throw new CustomError("Internal Server Error", 500)
         }
     }
 }
 
-export async function logout(sessionID: number): Promise<any> {
+export async function logout(sessionID: string): Promise<any> {
     try {
-        const userSession = await models.sessionModel.findOne({ where: { sessionID: sessionID } })
-
+        const userSession = await sessionServices.findSession(sessionID)
         if (!userSession) {
-            throw new CustomError('No sessions found for the user', 404);
+            throw new CustomError("No sessions found for the user", 404)
         }
 
-        await models.sessionModel.destroy({ where: { sessionID: sessionID } })
+        await sessionServices.deleteSession({ sessionID: sessionID })
+        return "Logged out successfully"
 
-        return 'Logged out successfully'
     } catch (error) {
         if (error instanceof CustomError) {
             throw error
         } else {
-            throw new CustomError('Internal Server Error', 500)
+            throw new CustomError("Internal Server Error", 500)
         }
+    }
+}
+
+export const verifyPassword = async function (password: string, hashedPassword: string): Promise<boolean> {
+    try {
+        return await bcrypt.compare(password, hashedPassword)
+    } catch (error) {
+        throw new CustomError("Error verifying password", 500)
     }
 }

@@ -1,4 +1,4 @@
-import { sessionModel, userModel } from '../../models/modelsRelations'
+import { sessionModel } from '../../models/modelsRelations'
 import { NextFunction, Request, Response } from 'express'
 import * as userServices from '../../services/userServices'
 
@@ -10,7 +10,7 @@ interface CustomRequest extends Request {
 const sessionMiddleware = async (req: CustomRequest, res: Response, next: NextFunction) => {
   try {
     const { headers: headersData } = req
-    console.log(req.headers);
+    console.log(req.headers)
     if (!headersData.authorization) {
       return res.status(400).json({ error: 'Session ID not provided in headers' })
     }

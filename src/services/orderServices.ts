@@ -12,12 +12,9 @@ export const getSpecificOrder = async function (orderID: number): Promise<any> {
     }
 
     const orderExists = await models.orderModel.findOne({
-      attributes: ['paymentMethod', 'displayID', 'status'],
+      attributes: ['paymentMethod', 'displayID', 'status', 'street', 'state', 'city', 'pinCode'],
       include: [
-        {
-          model: models.addressModel,
-          attributes: ['street', 'state', 'city', 'pinCode'],
-        },
+
         {
           model: models.orderItemModel,
           attributes: [
@@ -46,6 +43,7 @@ export const getSpecificOrder = async function (orderID: number): Promise<any> {
     if (error instanceof CustomError) {
       throw error
     } else {
+      console.log(error)
       throw new CustomError('Internal Server Error', 500)
     }
   }

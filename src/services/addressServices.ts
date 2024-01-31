@@ -1,6 +1,5 @@
 import * as models from '../models/modelsRelations'
 import { CustomError } from './customError'
-import { sequelize } from "../config/db"
 
 export const createAddress = async function (addressData: any, transaction?: any): Promise<any> {
   try {
