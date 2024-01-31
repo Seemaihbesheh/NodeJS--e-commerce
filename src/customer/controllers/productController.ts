@@ -339,9 +339,7 @@ export const rateProduct = async (req: CustomRequest, res: Response): Promise<an
         )
         return res.status(200).json()
       }
-      else {
-        return res.status(200).json();
-      }
+
     }
 
   } catch (error) {
