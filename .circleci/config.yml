@@ -37,7 +37,7 @@ jobs:
 workflows:
   build-and-deploy:
     when:
-      equal: [ main, << pipeline.git.branch >> ]
+      equal: [ main ]
     jobs:
       - build
       - deploy:
