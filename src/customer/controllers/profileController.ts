@@ -9,7 +9,7 @@ import { validNumber } from '../../validators/validateSchema'
 export const getMyRatingsAndReviews = async function (req: CustomRequest, res: Response): Promise<any> {
   try {
     const userID = req.user.userID
-    const result = userServices.getUserRatingsAndReviews(userID)
+    const result = await userServices.getUserRatingsAndReviews(userID)
 
     res.send(200).json(result)
 
@@ -45,7 +45,7 @@ export const updateUserProfile = async function (req: CustomRequest, res: Respon
       }
     }
 
-    await userServices.updateUserProfile(userID, { firstName: firstName, lastName: lastName, dateOfBirth })
+    await userServices.updateUserProfile(userID, { firstName: firstName, lastName: lastName, dateOfBirth , mobile })
     res.status(201).json()
 
   } catch (error) {
