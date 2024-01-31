@@ -88,7 +88,7 @@ export const getUserRatingsAndReviews = async function (userID: number): Promise
   }
 }
 
-export const updateUserProfile = async function (userID: number, updateData: { firstName?: string, lastName?: string, dateOfBirth?: Date, image?: Buffer }): Promise<any> {
+export const updateUserProfile = async function (userID: number, updateData: { firstName?: string, lastName?: string, dateOfBirth?: Date, image?: Buffer , mobile? :string }): Promise<any> {
   try {
 
     const [rowCount, updatedUsers] = await models.userModel.update(
