@@ -3,47 +3,31 @@ import * as userServices from "../services/userServices"
 import * as models from "../models/modelsRelations"
 import { CustomError } from "./customError"
 import bcrypt from "bcrypt"
-import { ValidationErrorItem } from "sequelize"
 import * as validations from "../validators/validateSchema"
 import * as sessionServices from './sessionServices'
 
 export async function signUp(userData: any): Promise<{ sessionID: string }> {
     try {
         const { email, password, firstName, lastName } = userData
-        
-        const fieldsValidation = validations.userSchema.validate({firstName, lastName})
-        if (fieldsValidation.error) {
-            console.log (fieldsValidation.error)
+
+        const validationResult = validations.userSchema.validate({ email, password, firstName, lastName })
+        if (validationResult.error) {
+            const errorMessage = validationResult.error.message
+            throw new CustomError(errorMessage, 400)
         }
 
         const foundUser = await userServices.findUser({ email: email })
         if (foundUser) {
             throw new CustomError("Email already exists", 400)
         }
-        const validationResult = validations.userSchema.validate({
-            password: password,
-        })
 
-        if (validationResult.error) {
-            const errorMessage = validationResult.error.message
-            throw new CustomError(errorMessage, 400)
-        }
 
         const newUser = await userServices.createUser(userData)
         const session = await sessionServices.createSession({ userID: newUser.userID })
         return { sessionID: session.sessionID }
 
     } catch (error) {
-        if (error.name === "SequelizeValidationError") {
-            const validationErrors = error.errors as ValidationErrorItem[]
-            const emailValidationError = validationErrors.find(
-                (error) => error.path === "email"
-            )
-
-            if (emailValidationError) {
-                throw new CustomError("Invalid email format", 400)
-            }
-        } else if (error instanceof CustomError) {
+        if (error instanceof CustomError) {
             throw error
         } else {
             throw error
@@ -98,6 +82,12 @@ export async function changePassword(
         const passwordMatch = await verifyPassword(password, foundUser.password)
         if (!passwordMatch) {
             throw new CustomError("Invalid username or password", 400)
+        }
+
+        const validationResult = validations.passwordSchema.validate(newPassword)
+        if (validationResult.error) {
+            const errorMessage = validationResult.error.message
+            throw new CustomError(errorMessage, 400)
         }
 
         const hashedPass = await hashPassword(newPassword)
