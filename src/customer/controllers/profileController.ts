@@ -40,7 +40,7 @@ export const updateUserProfile = async function (req: CustomRequest, res: Respon
     }
 
     if (mobile) {
-      if (validNumber(mobile)) {
+      if (!validNumber(mobile)) {
         return res.status(404).json({error: "Invalid phone number"})
       }
     }
