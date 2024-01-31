@@ -76,3 +76,11 @@ export const removeProductFromWishList = async function(userID, productID): Prom
     throw new CustomError('Internal Server Error', 500)
   }
 }
+
+export const clearWishlist = async function (userID: number): Promise<void> {
+  try {
+    await models.wishListModel.destroy({ where: { userID } })
+  } catch (err) {
+    throw new CustomError('Internal Server Error', 500);
+  }
+}

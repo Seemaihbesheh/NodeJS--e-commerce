@@ -1,7 +1,6 @@
 import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
-import bcrypt from 'bcrypt'
-
+import {CustomError} from '../services/customError'
 import { findUser } from "../services/userServices"
 
 
@@ -13,7 +12,8 @@ interface userInstance extends Model {
   password: string,
   mobile: string,
   image?: Buffer | null, // Adjusted type for image
-  dateOfBirth : Date
+  dateOfBirth : Date,
+  role: string
 
 }
 const userModel = sequelize.define<userInstance>('users', {
@@ -52,34 +52,17 @@ const userModel = sequelize.define<userInstance>('users', {
     type: DataTypes.DATE,
     allowNull: true,
 
+  },
+  role: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: 'customer'
   }
 }, {
   timestamps: false,
   tableName: 'users'
 })
 
-userModel.beforeSave(async (thisUser: any) => {
-  if (thisUser.isNewRecord && thisUser.Password) {
-    const salt = await bcrypt.genSalt(10)
-    const hashedPass = await bcrypt.hash(thisUser.password, salt)
-    thisUser.password = hashedPass
-  }
-})
-
-userModel.beforeValidate(async (thisUser: any) => {
-  console.log(thisUser.password)
-  if (thisUser.isNewRecord && thisUser.Password) {
-    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!thisUser.password.match(passwordPattern)) {
-      throw new Error('Password does not meet requirements: It must be at least 8 characters long and include a mix of uppercase and lowercase letters, numbers, and special characters');
-    }
-  } else if (thisUser.changed('email') && thisUser.Password) {
-    const foundUser = await findUser(thisUser.email)
-    if (foundUser) {
-      throw new Error('Email already exists')
-    }
-  }
-})
 
 export {
   userModel,

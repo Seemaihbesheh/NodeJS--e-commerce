@@ -1,15 +1,34 @@
 import * as models from '../models/modelsRelations'
 import { CustomError } from './customError'
 import { sequelize } from "../config/db"
+import { hashPassword } from "../utils/userUtils"
+
+export const createUser = async function (userData): Promise<any> {
+  try {
+    const { email, password, firstName, lastName } = userData
+    const hashedPass = await hashPassword(password)
+
+    return await models.userModel.create({
+      email,
+      password: hashedPass,
+      firstName,
+      lastName,
+    })
+
+
+  } catch (error) {
+    throw new CustomError('Internal Server Error', 500)
+  }
+
+}
 
 export const findUser = async function (findBy: { userID?: number, email?: string }): Promise<any> {
   try {
-
     return await models.userModel.findOne({ where: findBy })
 
   } catch (err) {
     console.log(err.message)
-    throw new CustomError(err, 500)
+    throw new CustomError('Internal Server Error', 500)
   }
 }
 
@@ -19,7 +38,7 @@ export const findAllUsers = async function (page: number, pageSize: number): Pro
       limit: pageSize,
       offset: (page - 1) * pageSize,
     });
-    
+
     const allUsers = users.rows.map(user => ({
       fullName: `${user.firstName} ${user.lastName}`,
       email: user.email,

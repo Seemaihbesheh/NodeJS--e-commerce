@@ -12,7 +12,7 @@ export const getCartContent = async function (req: CustomRequest, res: Response)
     return res.status(200).json(cartContent)
   } catch (error) {
     console.error(error)
-    return res.status(error.status).json(error.message)
+    return res.status(error.status).json({error: error.message})
   }
 }
 
@@ -28,7 +28,7 @@ export const updateProductQuantityInCart = async function (req: CustomRequest, r
 
 
     if (validationResult.error) {
-      return res.status(400).json("Invalid Input");
+      return res.status(400).json({error: "Invalid Input"});
     }
 
     await cartServices.updateProductInCart(userID, productID, { productQuantity: newQuantity })
@@ -36,7 +36,7 @@ export const updateProductQuantityInCart = async function (req: CustomRequest, r
     return res.status(200).json()
   } catch (error) {
     console.error(error)
-    return res.status(error.status).json(error.message)
+    return res.status(error.status).json({error: error.message})
   }
 }
 
@@ -46,7 +46,7 @@ export const moveToWishlist = async function (req: CustomRequest, res: Response)
     const userID = req.user.userID
 
     if (!productID) {
-      return res.status(400).json('Invalid Input')
+      return res.status(400).json({error: 'Invalid Input'})
     }
 
     await cartServices.moveToWishlist(userID, productID)
@@ -54,7 +54,7 @@ export const moveToWishlist = async function (req: CustomRequest, res: Response)
     return res.status(200).json()
   } catch (error) {
     console.error(error)
-    return res.status(error.status).json(error.message)
+    return res.status(error.status).json({error: error.message})
   }
 }
 
@@ -66,7 +66,7 @@ export const deleteProductFromCart = async function (req: CustomRequest, res: Re
     const validationResult = cartValidationSchema.validate({ productID, userID });
 
     if (validationResult.error) {
-      return res.status(400).json("Invalid Input");
+      return res.status(400).json({error: "Invalid Input"});
     }
 
     await cartServices.deleteProductFromCart(userID, productID)
@@ -74,7 +74,7 @@ export const deleteProductFromCart = async function (req: CustomRequest, res: Re
     return res.status(200).json()
   } catch (error) {
     console.error(error)
-    return res.status(error.status).json(error.message)
+    return res.status(error.status).json({error: error.message})
   }
 }
 
@@ -88,7 +88,7 @@ export const addToCart = async function (req: CustomRequest, res: Response): Pro
     const validationResult = cartValidationSchema.validate({ userID, productID, productQuantity });
 
     if (validationResult.error) {
-      return res.status(400).json("Invalid Input");
+      return res.status(400).json({error: "Invalid Input"});
     }
 
 
@@ -97,7 +97,7 @@ export const addToCart = async function (req: CustomRequest, res: Response): Pro
     return res.status(201).json(result)
   } catch (error) {
     console.error(error.message)
-    return res.status(error.status).json(error.message)
+    return res.status(error.status).json({error: error.message})
   }
 }
 

@@ -1,5 +1,5 @@
 import { brandModel } from "../models/brand"
-
+import { CustomError } from "./customError"
 
 export async function findBrandByName(brandName: string): Promise<any> {
     try {
@@ -9,6 +9,6 @@ export async function findBrandByName(brandName: string): Promise<any> {
         }
     })
     } catch (error) {
-      throw error
+      throw new CustomError('Internal Server Error', 500)
     }
   }

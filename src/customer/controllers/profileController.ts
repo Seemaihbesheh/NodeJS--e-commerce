@@ -14,7 +14,7 @@ export const getMyRatingsAndReviews = async function (req: CustomRequest, res: R
     res.send(200).json(result)
 
   } catch (error) {
-    res.status(500).json(error.message)
+    res.status(500).json({error: error.message})
   }
 }
 
@@ -25,7 +25,7 @@ export const getUserProfile = async function (req: CustomRequest, res: Response)
 
   } catch (error) {
     console.log(error.message)
-    res.status(500).json(error.message)
+    res.status(500).json({error: error.message})
   }
 }
 
@@ -36,12 +36,12 @@ export const updateUserProfile = async function (req: CustomRequest, res: Respon
     const { firstName, lastName, mobile, dateOfBirth } = req.body;
 
     if (!firstName || !lastName) {
-      return res.status(404).json("Invalid input")
+      return res.status(404).json({error: "Invalid input"})
     }
 
     if (mobile) {
       if (validNumber(mobile)) {
-        return res.status(404).json("Invalid phone number")
+        return res.status(404).json({error: "Invalid phone number"})
       }
     }
 
@@ -50,7 +50,7 @@ export const updateUserProfile = async function (req: CustomRequest, res: Respon
 
   } catch (error) {
     console.log(error.message)
-    res.status(500).json(error.message)
+    res.status(500).json({error: error.message})
   }
 }
 
@@ -67,14 +67,14 @@ export const uploadPhoto = async (req: MulterRequest, res: Response): Promise<an
     const updatedUser = await userServices.updateUserProfile(userID, { image: fileBuffer })
 
     if (!updatedUser) {
-      return res.status(400).json("Upload Failed");
+      return res.status(400).json({error: "Upload Failed"});
     }
     return res.status(200).json(updatedUser.image);
 
 
   } catch (error) {
     console.error('Error in uploadPhoto:', error)
-    return res.status(500).json(error.message)
+    return res.status(500).json({error: error.message})
   }
 }
 
@@ -95,12 +95,12 @@ export const deletePhoto = async (req: CustomRequest, res: Response) => {
     const deletePhoto = await userServices.updateUserProfile(userID, { image: null })
 
     if (!deletePhoto) {
-      return res.status(404).json(' Failed To Delete Photo')
+      return res.status(404).json({error: 'Failed To Delete Photo'})
     }
     return res.status(200).json()
 
   } catch (error) {
-    res.status(500).json('Failed to Delete Photo')
+    res.status(500).json({error: 'Failed to Delete Photo'})
   }
 }
 
@@ -110,14 +110,14 @@ export const getUserAddresses = async (req: CustomRequest, res: Response): Promi
     const userID = req.user.userID
 
     if (!userID) {
-      return res.status(400).json("Invalid Input")
+      return res.status(400).json({error: "Invalid Input"})
     }
 
     const address = await userServices.getUserAddresses(userID)
 
 
     if (!address) {
-      return res.status(400).json('Not Found')
+      return res.status(400).json({error: 'Not Found'})
     }
 
     return res.json({ address })
@@ -125,7 +125,7 @@ export const getUserAddresses = async (req: CustomRequest, res: Response): Promi
 
   } catch (error) {
     console.error(error)
-    return res.status(500).json(error.message)
+    return res.status(500).json({error: error.message})
   }
 }
 
@@ -140,12 +140,12 @@ export const getUserOrders = async (req: CustomRequest, res: Response): Promise<
     const orders = await userServices.getUserOrdersByStatus(userID, status, page, pageSize)
     const count = orders.length
     if (!orders) {
-      return res.status(404).json("Not Found")
+      return res.status(404).json({error: "Not Found"})
     }
     return res.status(200).json({ "count": count, "orders": orders })
 
   } catch (error) {
-    res.status(error.status).json(error.message)
+    res.status(error.status).json({error: error.message})
   }
 
 }
