@@ -4,7 +4,7 @@ import { CustomRequest } from "../middlewares/sessionMiddleware"
 import { Request, Response } from 'express'
 import { Op } from 'sequelize'
 import FuzzySearch from 'fuzzy-search'
-import * as models from "../../models/modelsRelations"
+
 import * as productServices from "../../services/productServices"
 import * as validations from '../../validators/validateSchema'
 import * as categorySevices from "../../services/categoryServices";
@@ -316,12 +316,7 @@ export const rateProduct = async (req: CustomRequest, res: Response): Promise<an
       }
     }
 
-    const existRate = await models.ratingModel.findOne({
-      where: {
-        userID: userID,
-        productID: productID,
-      }
-    });
+   const existRate = await ratingSevices.findRatings(options);
 
     if (!existRate) {
       await ratingSevices.addRating({
