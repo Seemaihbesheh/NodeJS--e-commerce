@@ -31,9 +31,9 @@ export const updateProductQuantityInCart = async function (req: CustomRequest, r
       return res.status(400).json({error: "Invalid Input"});
     }
 
-    await cartServices.updateProductInCart(userID, productID, { productQuantity: newQuantity })
+    const updatedProductInCart = await cartServices.updateProductInCart(userID, productID, { productQuantity: newQuantity })
 
-    return res.status(200).json()
+    return res.status(200).json(updatedProductInCart)
   } catch (error) {
     console.error(error)
     return res.status(error.status).json({error: error.message})

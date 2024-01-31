@@ -6,6 +6,7 @@ import * as models from "../models/modelsRelations"
 
 export const getProduct = async function (productID: number, options?: any): Promise<any> {
   try {
+    console.log ("here in product " + productID)
     const defaultOptions = {
       attributes: ["productID", "title", "subTitle", "price", "quantity", "discount"],
       include: [
