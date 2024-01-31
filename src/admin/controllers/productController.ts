@@ -3,7 +3,7 @@ import { productModel } from '../../models/product';
 import * as categorySevices from "../../services/categoryServices";
 import * as brandSevices from "../../services/brandServices";
 import * as productSevices from '../../services/productServices'
-import * as validates from '../../validators/validateSchema'
+import  * as validates from '../../validators/validateSchema'
 
 
 export const addProduct = async function (req: Request, res: Response) {
@@ -11,8 +11,12 @@ export const addProduct = async function (req: Request, res: Response) {
         const { title, subTitle, description, price, quantity, categoryName, brandName } = req.body;
 
         const validationResult = validates.productValidationSchema.validate({ title, subTitle, description, price, quantity }) && validates.brandValidationSchema.validate({ name: brandName }) && validates.categoryValidationSchema.validate({ name: categoryName });
+
         if (validationResult.error) {
             return res.status(404).json({ error: "All fields are required" });
+
+
+
         }
 
         let discount = req.body.discount
@@ -56,6 +60,7 @@ export const updateProduct = async function (req: Request, res: Response) {
         const productID = Number(req.params.productID)
         const { title, subTitle, description, price, quantity, categoryName, brandName, discount } = req.body;
 
+
         const validationResult = validates.productValidationSchema.validate({ title, subTitle, description, price, quantity, discount }) && validates.brandValidationSchema.validate({ name: brandName }) && validates.categoryValidationSchema.validate({ name: categoryName })
 
         if (validationResult.error) {
@@ -70,6 +75,7 @@ export const updateProduct = async function (req: Request, res: Response) {
 
 
         //if the admin need to update the category
+
         let category;
         let categoryID;
         if (categoryName) {
