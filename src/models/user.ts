@@ -2,6 +2,7 @@ import { sequelize } from "../config/db"
 import { DataTypes, Model } from "sequelize"
 import {CustomError} from '../services/customError'
 import { findUser } from "../services/userServices"
+import { text } from "aws-sdk/clients/customerprofiles"
 
 
 interface userInstance extends Model {
@@ -11,7 +12,7 @@ interface userInstance extends Model {
   email: string,
   password: string,
   mobile: string,
-  image?: Buffer | null, // Adjusted type for image
+  image?: string | null, // Adjusted type for image
   dateOfBirth : Date,
   role: string
 
@@ -42,9 +43,10 @@ const userModel = sequelize.define<userInstance>('users', {
     type: DataTypes.STRING,
   },
   image: {
-  type: DataTypes.BLOB('long'), 
-   allowNull:true,  
+    type: DataTypes.TEXT, // or DataTypes.STRING with an appropriate length
+    allowNull: true,
   },
+  
     dateOfBirth:{
     type: DataTypes.DATE,
     allowNull: true,

@@ -6,6 +6,7 @@ import { MulterRequest } from "../middlewares/multerMiddleware"
 import { validNumber } from '../../validators/validateSchema'
 
 
+
 export const getMyRatingsAndReviews = async function (req: CustomRequest, res: Response): Promise<any> {
   try {
     const userID = req.user.userID
@@ -64,7 +65,9 @@ export const uploadPhoto = async (req: MulterRequest, res: Response): Promise<an
     if (!fileBuffer) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
-    const updatedUser = await userServices.updateUserProfile(userID, { image: fileBuffer })
+     // Convert the image buffer to base64
+     const base64Image = fileBuffer.toString('base64');
+    const updatedUser = await userServices.updateUserProfile(userID, { image: base64Image })
 
     if (!updatedUser) {
       return res.status(400).json({error: "Upload Failed"});

@@ -20,6 +20,7 @@
   "homepage": "https://github.com/SD-1023/Backend-Final-3#readme",
   "dependencies": {
     "@faker-js/faker": "^8.4.0",
+    "base64-arraybuffer": "^1.0.2",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
